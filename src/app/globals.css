@@ -58,4 +58,18 @@ body {
         transparent 50%
       );
   }
+
+  /* Add these below your existing custom classes */
+  .btn-vibrant {
+    background: linear-gradient(135deg, #ff4b2b 0%, #fdc830 100%);
+  }
+
+  .input-focus-gradient:focus {
+    border-color: transparent;
+    background-image:
+      linear-gradient(black, black), linear-gradient(to right, #ff4b2b, #fdc830);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    border-width: 1px;
+  }
 }
