@@ -1,15 +1,40 @@
-"use client";
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "../lib/supabase";
 
 export function useBooks() {
-  const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const {
+    data: books = [],
+    isPending,
+    error,
+  } = useQuery({
+    queryKey: ["books"],
 
-  // Placeholder for fetching from Supabase 'books' table
-  const fetchMarketplaceBooks = async () => {
-    setLoading(true);
-    /* Fetch logic */ setLoading(false);
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("books")
+        .select(
+          `
+          *,
+          profiles (
+            full_name,
+            avatar_url
+          )
+        `,
+        )
+        .in("status", ["available", "pending"])
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+  });
+
+  return {
+    books,
+    isPending,
+    error,
   };
-
-  return { books, loading, fetchMarketplaceBooks };
 }
