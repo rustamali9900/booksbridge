@@ -1,6 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
-
 export async function middleware(request) {
   let supabaseResponse = NextResponse.next({
     request: {
@@ -32,6 +31,7 @@ export async function middleware(request) {
   const isAuthRoute =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/signup");
+
   const isProtectedRoute = request.nextUrl.pathname.startsWith("/marketplace");
 
   if (!user && isProtectedRoute) {
@@ -44,9 +44,3 @@ export async function middleware(request) {
 
   return supabaseResponse;
 }
-
-export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
-};
