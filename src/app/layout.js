@@ -1,3 +1,4 @@
+import QueryProvider from "@/providers/QueryProvider";
 import "./globals.css";
 import { Inter } from "next/font/google";
 
@@ -23,7 +24,7 @@ export default function RootLayout({ children }) {
       <body
         className={`${inter.className} bg-black text-slate-100 min-h-screen flex flex-col overflow-x-hidden selection:bg-[#FF4B2B]/30`}
       >
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
