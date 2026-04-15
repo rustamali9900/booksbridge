@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -63,50 +64,50 @@ export default function LoginPage() {
   const displayError = validationError || serverError;
 
   return (
-    <div className="relative flex flex-1 flex-col items-center justify-center p-6 min-h-screen">
+    <div className="relative flex flex-1 flex-col items-center justify-center min-h-screen p-4">
       <ToastContainer />
 
       {/* Background Blurs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-[#FF4B2B]/10 rounded-full blur-[120px]"></div>
-        <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-[#FDC830]/5 rounded-full blur-[100px]"></div>
+        <div className="absolute -top-[10%] -left-[10%] h-[50%] w-[50%] rounded-full bg-[#FF4B2B]/10 blur-[120px]"></div>
+        <div className="absolute -bottom-[10%] -right-[10%] h-[40%] w-[40%] rounded-full bg-[#FDC830]/5 blur-[100px]"></div>
       </div>
 
       {/* Header */}
-      <header className="absolute top-0 w-full px-10 py-10 flex justify-center items-center">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold tracking-tight text-white font-display">
+      <header className="absolute top-0 flex w-full items-center justify-center px-8 py-7">
+        <div className="flex items-center gap-2">
+          <h1 className="font-display text-xl font-bold tracking-tight text-white">
             LiberExchange
           </h1>
         </div>
       </header>
 
-      <main className="w-full max-w-[460px] z-10 mt-16">
-        <div className="glass-card rounded-2xl p-8 md:p-12 flex flex-col gap-8">
-          <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold text-white font-display">
+      <main className="z-10 mt-12 w-full max-w-[380px]">
+        <div className="glass-card flex flex-col gap-5 rounded-2xl p-6 md:p-7">
+          <div className="space-y-1 text-center">
+            <h2 className="font-display text-2xl font-bold text-white">
               Welcome Back
             </h2>
-            <p className="text-sm text-slate-400">
+            <p className="text-xs text-slate-400">
               Continue your book-trading journey.
             </p>
           </div>
 
           {/* Error */}
           {displayError && (
-            <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-lg text-center">
+            <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-2.5 text-center text-xs text-red-400">
               {displayError}
             </div>
           )}
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Email */}
             <input
               name="email"
               value={formData.email}
               onChange={handleChange}
               disabled={loading}
-              className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-white cursor-pointer"
+              className="w-full cursor-pointer rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white"
               placeholder="name@example.com"
               type="email"
             />
@@ -118,7 +119,7 @@ export default function LoginPage() {
                 value={formData.password}
                 onChange={handleChange}
                 disabled={loading}
-                className="w-full bg-black/40 border border-white/10 rounded-xl py-4 px-4 text-white pr-12 cursor-pointer"
+                className="w-full cursor-pointer rounded-xl border border-white/10 bg-black/40 px-4 py-3 pr-12 text-sm text-white"
                 placeholder="••••••••••••"
                 type={showPassword ? "text" : "password"}
               />
@@ -126,7 +127,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer"
+                className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-[11px] text-slate-400"
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
@@ -136,15 +137,15 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-vibrant text-white font-bold py-4 rounded-xl cursor-pointer"
+              className="btn-vibrant w-full cursor-pointer rounded-xl py-3 text-sm font-bold text-white"
             >
               {loading ? "Authenticating..." : "Secure Log In"}
             </button>
           </form>
 
-          <p className="text-center text-sm text-slate-500">
+          <p className="text-center text-xs text-slate-500">
             Do not have an account?
-            <Link className="text-white font-bold ml-1" href="/signup">
+            <Link className="ml-1 font-bold text-white" href="/signup">
               Sign Up
             </Link>
           </p>
