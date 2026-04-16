@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 
-export default function BookCard({ book }) {
+export default function BookCard({ book, currentUserId }) {
   const status = book?.status?.toLowerCase();
+
+  const isOwner = currentUserId === book?.owner_id;
 
   const statusStyles = {
     available: "bg-emerald-950/60 text-emerald-300 border-emerald-800/60",
@@ -93,11 +95,6 @@ export default function BookCard({ book }) {
                 </span>
               </div>
             </div>
-          </div>
-
-          {/* Button */}
-          <div className="w-full flex items-center justify-center bg-gradient-to-r from-[#dc2505] to-[#f6c438] text-white px-8 py-3 rounded-full text-xs md:text-sm font-bold tracking-[0.18em] hover:scale-[1.02] transition">
-            Request to Buy
           </div>
         </div>
       </div>

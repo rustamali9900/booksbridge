@@ -1,17 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import BookCard from "@/components/ui/BookCard";
 import Spinner from "@/components/ui/Spinner";
-import ListBookModal from "@/components/layout/ListBookModal"; // Adjust import path if necessary
+import ListBookModal from "@/components/layout/ListBookModal";
 import { useBooks } from "@/hooks/useBooks";
 import { useCreateBook } from "@/hooks/useCreateBook";
+import { supabase } from "@/lib/supabase";
 
 export default function Marketplace() {
   const { books, isPending, error } = useBooks();
   const { mutate: createBook, isPending: isCreating } = useCreateBook();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUserId(user.id);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const handleBookSubmit = (formData) => {
     createBook(formData, {
@@ -26,7 +42,8 @@ export default function Marketplace() {
 
   return (
     <div className="bg-background-dark font-display text-slate-100 min-h-screen">
-      <Navbar user={books[0]?.profiles} />
+      {/* Note: You might want to pass the actual logged-in user to Navbar instead of books[0]?.profiles in the future! */}
+      <Navbar user={books?.[0]?.profiles} />
 
       <main className="max-w-[1280px] mx-auto px-6 py-12">
         <div className="flex flex-col items-center mb-14 text-center">
@@ -71,7 +88,11 @@ export default function Marketplace() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
             {books.map((book) => (
-              <BookCard key={book.id} book={book} />
+              <BookCard
+                key={book.id}
+                book={book}
+                currentUserId={currentUserId} // ✅ Pass the current user ID to the card
+              />
             ))}
           </div>
         )}
