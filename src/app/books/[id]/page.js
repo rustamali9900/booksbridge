@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 
 export default async function BookDetailsPage({ params }) {
   const { id } = await params;
-
   const supabase = await createServerSupabase();
 
   const {
@@ -56,7 +55,7 @@ export default async function BookDetailsPage({ params }) {
                 disabled
                 className="w-full bg-zinc-800 text-zinc-500 cursor-not-allowed px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest border border-white/5"
               >
-                You listed this book
+                You own this book
               </button>
             ) : (
               <RequestButton

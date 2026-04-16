@@ -3,27 +3,30 @@
 import { useRouter } from "next/navigation";
 import { useAcceptRequest, useRejectRequest } from "@/hooks/useManageRequests";
 import Image from "next/image";
+import { useTransition } from "react";
 
 export default function RequestActionModal({ request }) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const { mutate: accept, isPending: isAccepting } = useAcceptRequest();
   const { mutate: reject, isPending: isRejecting } = useRejectRequest();
 
   if (!request) return null;
-
-  const closeModal = () => {
-    router.push("/dashboard");
-    router.refresh();
-  };
 
   const handleAccept = () => {
     accept(
       {
         bookId: request.book.id,
         requesterId: request.requester.id,
+        requestId: request.id,
       },
       {
-        onSuccess: closeModal,
+        onSuccess: () => {
+          startTransition(() => {
+            router.replace("/dashboard");
+            router.refresh();
+          });
+        },
       },
     );
   };
@@ -34,7 +37,12 @@ export default function RequestActionModal({ request }) {
         requestId: request.id,
       },
       {
-        onSuccess: closeModal,
+        onSuccess: () => {
+          startTransition(() => {
+            router.replace("/dashboard");
+            router.refresh();
+          });
+        },
       },
     );
   };
@@ -42,7 +50,7 @@ export default function RequestActionModal({ request }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-[#111] border border-white/10 rounded-2xl p-8 max-w-md w-full shadow-2xl">
-        <h3 className="text-2xl font-black uppercase tracking-tighter text-white mb-6">
+        <h3 className="text-2xl font-black mb-6 uppercase tracking-tighter text-white">
           Review Request
         </h3>
 
@@ -55,12 +63,13 @@ export default function RequestActionModal({ request }) {
               className="object-cover"
             />
           </div>
+
           <div>
             <p className="text-xs text-orange-400 font-bold uppercase tracking-widest">
               {request.book.title}
             </p>
-            <p className="text-sm font-semibold text-white mt-1">
-              Requester: {request.requester.full_name}
+            <p className="text-sm font-semibold text-white">
+              {request.requester.full_name}
             </p>
             <p className="text-xs text-white/50">{request.requester.email}</p>
           </div>
@@ -69,24 +78,23 @@ export default function RequestActionModal({ request }) {
         <div className="flex flex-col gap-3">
           <button
             onClick={handleAccept}
-            disabled={isAccepting || isRejecting}
-            className="w-full bg-gradient-to-r from-emerald-500 to-emerald-700 text-white px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest hover:scale-[1.02] transition-transform active:scale-95 disabled:opacity-50"
+            disabled={isAccepting || isRejecting || isPending}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white py-4 rounded-full font-bold uppercase tracking-widest transition-all"
           >
-            {isAccepting ? "Transferring..." : "Accept & Transfer"}
+            {isAccepting || isPending ? "Processing..." : "Accept & Transfer"}
           </button>
 
           <button
             onClick={handleReject}
-            disabled={isAccepting || isRejecting}
-            className="w-full bg-red-950/50 text-red-400 border border-red-900/50 px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest hover:bg-red-950 transition-colors disabled:opacity-50"
+            disabled={isAccepting || isRejecting || isPending}
+            className="w-full bg-red-900/30 border border-red-900/50 hover:bg-red-900/50 disabled:opacity-50 text-red-400 py-4 rounded-full font-bold uppercase tracking-widest transition-all"
           >
             {isRejecting ? "Rejecting..." : "Reject Request"}
           </button>
 
           <button
-            onClick={closeModal}
-            disabled={isAccepting || isRejecting}
-            className="w-full mt-2 text-xs font-bold text-white/40 uppercase tracking-widest hover:text-white transition-colors"
+            onClick={() => router.replace("/dashboard")}
+            className="mt-2 text-white/40 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors"
           >
             Cancel
           </button>

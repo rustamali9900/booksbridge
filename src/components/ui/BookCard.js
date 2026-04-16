@@ -3,7 +3,6 @@ import Image from "next/image";
 
 export default function BookCard({ book, currentUserId }) {
   const status = book?.status?.toLowerCase();
-
   const isOwner = currentUserId === book?.owner_id;
 
   const statusStyles = {
@@ -22,7 +21,6 @@ export default function BookCard({ book, currentUserId }) {
   return (
     <Link href={`/books/${book.id}`} className="block h-full cursor-pointer">
       <div className="glass-card rounded-xl overflow-hidden group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
-        {/* Book Cover */}
         <div className="relative aspect-[3/4] overflow-hidden shrink-0">
           <Image
             src={
@@ -50,7 +48,6 @@ export default function BookCard({ book, currentUserId }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-80 pointer-events-none" />
         </div>
 
-        {/* Content */}
         <div className="p-6 flex flex-col flex-1">
           <div className="flex justify-between items-start gap-3 mb-2">
             <h3 className="flex-1 text-base font-bold leading-tight line-clamp-2 uppercase tracking-tight text-white">
@@ -61,13 +58,10 @@ export default function BookCard({ book, currentUserId }) {
               ${book?.price?.toLocaleString() ?? "0"}
             </span>
           </div>
-
           <p className="text-slate-500 text-xs mb-6 font-medium line-clamp-1">
             {book?.author ?? "Unknown Author"} •{" "}
             {book?.copy_type ?? "Standard Edition"}
           </p>
-
-          {/* Seller */}
           <div className="flex items-center gap-3 mb-6 mt-auto">
             <div className="relative size-8 rounded-full overflow-hidden border border-white/10 bg-zinc-900 shrink-0">
               <Image
@@ -95,7 +89,7 @@ export default function BookCard({ book, currentUserId }) {
                 </span>
               </div>
             </div>
-          </div>
+          </div>{" "}
         </div>
       </div>
     </Link>
