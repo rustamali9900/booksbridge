@@ -1,4 +1,6 @@
 import QueryProvider from "@/providers/QueryProvider";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 import { Inter } from "next/font/google";
 
@@ -25,6 +27,7 @@ export default function RootLayout({ children }) {
         className={`${inter.className} bg-black text-slate-100 min-h-screen flex flex-col overflow-x-hidden selection:bg-[#FF4B2B]/30`}
       >
         <QueryProvider>{children}</QueryProvider>
+        <ToastContainer />
       </body>
     </html>
   );
