@@ -1,12 +1,28 @@
 "use client";
 
+import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import BookCard from "@/components/ui/BookCard";
 import Spinner from "@/components/ui/Spinner";
+import ListBookModal from "@/components/layout/ListBookModal"; // Adjust import path if necessary
 import { useBooks } from "@/hooks/useBooks";
+import { useCreateBook } from "@/hooks/useCreateBook";
 
 export default function Marketplace() {
   const { books, isPending, error } = useBooks();
+  const { mutate: createBook, isPending: isCreating } = useCreateBook();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleBookSubmit = (formData) => {
+    createBook(formData, {
+      onSuccess: () => {
+        setIsModalOpen(false);
+      },
+      onError: (err) => {
+        alert(err.message);
+      },
+    });
+  };
 
   return (
     <div className="bg-background-dark font-display text-slate-100 min-h-screen">
@@ -23,7 +39,10 @@ export default function Marketplace() {
             transactions for the world's rarest literary treasures.
           </p>
 
-          <button className="mb-8 px-6 py-2.5 rounded-full bg-linear-to-r from-[#ff330f] to-[#f6c438] text-white font-bold text-xs tracking-[0.2em] uppercase shadow-md hover:scale-[1.03] hover:shadow-lg transition-all duration-300">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="mb-8 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#ff330f] to-[#f6c438] text-white font-bold text-xs tracking-[0.2em] uppercase shadow-md hover:scale-[1.03] hover:shadow-lg transition-all duration-300"
+          >
             List a Book
           </button>
 
@@ -60,11 +79,18 @@ export default function Marketplace() {
         {!isPending && (
           <div className="mt-20 pt-10 border-t border-white/5 flex flex-col items-center gap-6">
             <p className="text-slate-600 text-[10px] font-medium uppercase tracking-[0.3em]">
-              LiberExchange Marketplace © 2026
+              BooksBridge Marketplace © 2026
             </p>
           </div>
         )}
       </main>
+
+      <ListBookModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleBookSubmit}
+        isPending={isCreating}
+      />
     </div>
   );
 }

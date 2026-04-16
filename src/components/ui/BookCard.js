@@ -1,7 +1,6 @@
 import Image from "next/image";
 
 export default function BookCard({ book }) {
-  console.log(book);
   const status = book?.status?.toLowerCase();
 
   const statusStyles = {
