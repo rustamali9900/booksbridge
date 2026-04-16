@@ -18,7 +18,10 @@ export default function Navbar({ user }) {
     <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-black/90 backdrop-blur-md">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 shrink-0 group">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-3 shrink-0 group"
+        >
           <div className="relative h-9 w-9 transition-transform duration-300 group-hover:scale-105">
             <Image
               src="/logo.png"
