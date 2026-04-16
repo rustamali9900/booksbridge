@@ -1,33 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import BookCard from "@/components/ui/BookCard";
 import Spinner from "@/components/ui/Spinner";
 import ListBookModal from "@/components/layout/ListBookModal";
 import { useBooks } from "@/hooks/useBooks";
 import { useCreateBook } from "@/hooks/useCreateBook";
-import { supabase } from "@/lib/supabase";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function Marketplace() {
   const { books, isPending, error } = useBooks();
   const { mutate: createBook, isPending: isCreating } = useCreateBook();
 
+  const {
+    currentUserId,
+    currentUser,
+    isLoading: isUserLoading,
+  } = useCurrentUser();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        setCurrentUserId(user.id);
-      }
-    };
-
-    fetchUser();
-  }, []);
 
   const handleBookSubmit = (formData) => {
     createBook(formData, {
@@ -42,8 +34,7 @@ export default function Marketplace() {
 
   return (
     <div className="bg-background-dark font-display text-slate-100 min-h-screen">
-      {/* Note: You might want to pass the actual logged-in user to Navbar instead of books[0]?.profiles in the future! */}
-      <Navbar user={books?.[0]?.profiles} />
+      <Navbar user={currentUser} />
 
       <main className="max-w-[1280px] mx-auto px-6 py-12">
         <div className="flex flex-col items-center mb-14 text-center">
@@ -63,7 +54,6 @@ export default function Marketplace() {
             List a Book
           </button>
 
-          {/* Search Bar */}
           <div className="w-full max-w-xl flex items-center h-12 pl-5 pr-2 rounded-lg border border-orange-500/40 bg-black/20 backdrop-blur-md transition focus-within:border-orange-400 focus-within:shadow-none">
             <input
               className="w-full text-white placeholder:text-slate-600 text-xs font-light tracking-wide bg-transparent outline-none focus:outline-none"
@@ -79,7 +69,7 @@ export default function Marketplace() {
           </div>
         </div>
 
-        {isPending ? (
+        {isPending || isUserLoading ? (
           <Spinner />
         ) : error ? (
           <div className="text-center text-primary py-16 font-bold tracking-widest uppercase text-sm">
@@ -91,13 +81,13 @@ export default function Marketplace() {
               <BookCard
                 key={book.id}
                 book={book}
-                currentUserId={currentUserId} // ✅ Pass the current user ID to the card
+                currentUserId={currentUserId}
               />
             ))}
           </div>
         )}
 
-        {!isPending && (
+        {!isPending && !isUserLoading && (
           <div className="mt-20 pt-10 border-t border-white/5 flex flex-col items-center gap-6">
             <p className="text-slate-600 text-[10px] font-medium uppercase tracking-[0.3em]">
               BooksBridge Marketplace © 2026
