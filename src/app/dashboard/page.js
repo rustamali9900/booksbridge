@@ -1,8 +1,11 @@
+export const dynamic = "force-dynamic";
+
 import { createServerSupabase } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import RequestActionModal from "@/components/ui/RequestActionModal";
+import AuctionModal from "@/components/ui/AuctionModal";
 
 export default async function DashboardPage({ searchParams }) {
   const params = await searchParams;
@@ -20,7 +23,7 @@ export default async function DashboardPage({ searchParams }) {
       id,
       status,
       created_at,
-      book:books ( id, title, price, image_url ),
+      book:books ( id, title, price, image_url, status ),
       requester:profiles!requester_id ( id, full_name, email, avatar_url )
     `,
     )
@@ -33,11 +36,50 @@ export default async function DashboardPage({ searchParams }) {
     ? requests?.find((r) => r.id === params.request)
     : null;
 
+  const showAuctionModal = params?.auction === "true";
+
+  const activeAuctionBookId = requests?.find(
+    (req) => req.book.status === "in_auction",
+  )?.book?.id;
+
+  const groupedRequests = requests?.reduce((acc, req) => {
+    if (!acc[req.book.id]) {
+      acc[req.book.id] = { book: req.book, count: 0 };
+    }
+    acc[req.book.id].count += 1;
+    return acc;
+  }, {});
+
+  const auctionableBooks = Object.values(groupedRequests || {})
+    .filter((item) => item.count > 1 && item.book.status !== "in_auction")
+    .map((item) => item.book);
+
   return (
     <div className="min-h-screen bg-background-dark text-white p-10 max-w-5xl mx-auto relative">
-      <h1 className="text-3xl font-black uppercase tracking-tighter mb-8">
-        Seller Dashboard
-      </h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-black uppercase tracking-tighter">
+          Seller Dashboard
+        </h1>
+
+        {activeAuctionBookId ? (
+          <Link
+            href={`/auction/${activeAuctionBookId}`}
+            className="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-full font-bold uppercase tracking-widest transition-all text-sm animate-pulse shadow-[0_0_15px_rgba(220,38,38,0.5)]"
+          >
+            Enter Active Auction
+          </Link>
+        ) : (
+          auctionableBooks.length > 0 && (
+            <Link
+              href="/dashboard?auction=true"
+              className="rounded-full bg-gradient-to-r from-[#dc2505] to-[#f6c438] ml-10 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-black transition hover:brightness-110"
+            >
+              Start an Auction
+            </Link>
+          )
+        )}
+      </div>
+
       <h2 className="text-xl font-semibold mb-6 border-b border-white/10 pb-4">
         Incoming Requests
       </h2>
@@ -69,7 +111,7 @@ export default async function DashboardPage({ searchParams }) {
                     Requested: {request.book.title}
                   </p>
                   <div className="flex items-center gap-3 mt-3">
-                    <div className="relative size-8 rounded-full overflow-hidden bg-zinc-800">
+                    <div className="relative size-8 rounded-full overflow-hidden bg-zinc-900">
                       <Image
                         src={
                           request.requester.avatar_url ||
@@ -112,6 +154,10 @@ export default async function DashboardPage({ searchParams }) {
       )}
 
       {selectedRequest && <RequestActionModal request={selectedRequest} />}
+
+      {showAuctionModal && !activeAuctionBookId && (
+        <AuctionModal books={auctionableBooks} />
+      )}
     </div>
   );
 }
