@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-  { label: "AUCTION HOUSE", href: "/auction" },
+  { label: "AUCTION HOUSE", href: "/auctionhouse" },
   { label: "MARKETPLACE", href: "/marketplace" },
   { label: "EXCHANGE ZONE", href: "/exchange" },
   { label: "MYSTERY ROOM", href: "/mystery" },
