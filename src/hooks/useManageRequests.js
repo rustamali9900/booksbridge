@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
-const acceptRequest = async ({ bookId, requesterId, requestId }) => {
+const acceptRequest = async ({ bookId, requesterId }) => {
   const { error: bookError } = await supabase
     .from("books")
     .update({
@@ -10,16 +10,20 @@ const acceptRequest = async ({ bookId, requesterId, requestId }) => {
     })
     .eq("id", bookId);
 
-  if (bookError) throw bookError;
+  if (bookError) {
+    throw new Error(bookError.message);
+  }
 
-  const { error: requestError } = await supabase
+  const { error: deleteError } = await supabase
     .from("requests")
     .delete()
-    .eq("id", requestId);
+    .eq("book_id", bookId);
 
-  if (requestError) throw requestError;
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
 
-  return true;
+  return { bookId };
 };
 
 const rejectRequest = async ({ requestId }) => {
@@ -28,7 +32,9 @@ const rejectRequest = async ({ requestId }) => {
     .delete()
     .eq("id", requestId);
 
-  if (error) throw error;
+  if (error) {
+    throw new Error(error.message);
+  }
 
   return true;
 };
@@ -38,10 +44,11 @@ export const useAcceptRequest = () => {
 
   return useMutation({
     mutationFn: acceptRequest,
-    onSuccess: (_, variables) => {
+    onSuccess: ({ bookId }) => {
       queryClient.invalidateQueries({ queryKey: ["books"] });
-      queryClient.invalidateQueries({ queryKey: ["books", variables.bookId] });
+      queryClient.invalidateQueries({ queryKey: ["books", bookId] });
       queryClient.invalidateQueries({ queryKey: ["requests"] });
+      queryClient.removeQueries({ queryKey: ["request-status", bookId] });
     },
   });
 };
