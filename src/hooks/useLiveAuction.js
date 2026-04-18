@@ -13,6 +13,12 @@ export function useLiveAuction(bookId, userId) {
   const { data: book } = useQuery({
     queryKey: ["auction_book", bookId],
     enabled: !!bookId,
+
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    staleTime: 0,
+    gcTime: 0,
+
     queryFn: async () => {
       const { data, error } = await supabase
         .from("books")
@@ -47,16 +53,6 @@ export function useLiveAuction(bookId, userId) {
     hasResolvedRef.current = true;
 
     try {
-      // Instantly lock the UI locally
-      queryClient.setQueryData(["auction_book", bookId], (old) =>
-        old
-          ? {
-              ...old,
-              auction_status: "sold",
-            }
-          : old,
-      );
-
       const { error } = await supabase.rpc("resolve_auction", {
         p_book_id: bookId,
       });
@@ -69,6 +65,7 @@ export function useLiveAuction(bookId, userId) {
 
       await queryClient.invalidateQueries({
         queryKey: ["auction_book", bookId],
+        refetchType: "all",
       });
 
       await queryClient.invalidateQueries({

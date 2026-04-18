@@ -37,9 +37,11 @@ export default function AuctionClientRoom({ bookId, userId }) {
   const totalDurationRef = useRef(null);
 
   useEffect(() => {
+    if (!book) return;
+
     if (
-      book?.auction_status === "in_auction" &&
-      book?.auction_end_time &&
+      book.auction_status === "in_auction" &&
+      book.auction_end_time &&
       totalDurationRef.current === null
     ) {
       const endTime = new Date(book.auction_end_time).getTime();
@@ -48,12 +50,16 @@ export default function AuctionClientRoom({ bookId, userId }) {
       totalDurationRef.current = remaining || 60;
     }
 
-    if (book?.auction_status === "sold") {
-      setTimeout(() => {
-        router.replace("/auctionhouse?alert=auction_ended");
-      }, 2500);
-    }
-  }, [book?.auction_status, book?.auction_end_time, router]);
+    const isEnded = book.auction_status === "sold" || timeLeft === 0;
+
+    if (!isEnded) return;
+
+    const timer = setTimeout(() => {
+      router.replace("/auctionhouse?alert=auction_ended");
+    }, 800); // reduced delay for consistency
+
+    return () => clearTimeout(timer);
+  }, [book, router]);
 
   if (!book) {
     return (
