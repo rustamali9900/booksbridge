@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useAuctionBooks } from "@/hooks/useAuctionBooks";
 import Navbar from "@/components/layout/Navbar";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function AuctionHousePage() {
   const { data: books, isLoading, error } = useAuctionBooks();
@@ -12,9 +13,15 @@ export default function AuctionHousePage() {
     books?.find((b) => b.auction_status === "in_auction") || books?.[0];
   const gridBooks = books?.filter((b) => b.id !== featuredBook?.id) || [];
 
+  const {
+    currentUserId,
+    currentUser,
+    isLoading: isUserLoading,
+  } = useCurrentUser();
+
   return (
     <div className="relative min-h-screen w-full flex flex-col overflow-x-hidden font-display text-slate-100 selection:bg-[#fa4d2e]/30 bg-black">
-      <Navbar />
+      <Navbar user={currentUser} />
 
       <main className="flex-grow max-w-6xl mx-auto w-full px-4 py-6 lg:px-10">
         {isLoading ? (
@@ -121,7 +128,7 @@ export default function AuctionHousePage() {
                         </div>
                       </div>
 
-                      {featuredBook.auction_status === "in_auction" && (
+                      {featuredBook.auction_status === "in_auction" ? (
                         <div className="mt-6 flex flex-col sm:flex-row gap-3">
                           <button
                             onClick={() =>
@@ -134,6 +141,15 @@ export default function AuctionHousePage() {
                               trending_up
                             </span>
                           </button>
+                        </div>
+                      ) : (
+                        <div className="mt-6 bg-white/5 border border-white/10 rounded-xl p-4">
+                          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-2">
+                            Description
+                          </p>
+                          <p className="text-sm text-slate-300 leading-relaxed">
+                            {featuredBook.description}
+                          </p>
                         </div>
                       )}
                     </div>
@@ -190,16 +206,12 @@ export default function AuctionHousePage() {
                             Rs {book.price.toLocaleString()}
                           </p>
 
-                          {book.auction_status === "in_auction" ? (
+                          {book.auction_status === "in_auction" && (
                             <button
                               onClick={() => router.push(`/auction/${book.id}`)}
                               className="bg-gradient-to-br from-[#FF4B2B] to-[#FDC830] px-3 py-1.5 text-[10px] font-bold text-white rounded"
                             >
                               Join Room
-                            </button>
-                          ) : (
-                            <button className="bg-white/10 px-3 py-1.5 text-[10px] rounded">
-                              View Details
                             </button>
                           )}
                         </div>

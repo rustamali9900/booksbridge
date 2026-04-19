@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useLiveAuction } from "@/hooks/useLiveAuction";
 import Navbar from "@/components/layout/Navbar";
+import { useState, useRef, useEffect } from "react";
+import { useLiveAuction } from "@/hooks/useLiveAuction";
 
 function timeAgo(dateString) {
   if (!dateString) return "Just now";
@@ -51,12 +50,15 @@ export default function AuctionClientRoom({ bookId, userId }) {
     }
 
     const isEnded = book.auction_status === "sold" || timeLeft === 0;
+    if (isEnded) {
+      router.push(`/auction/${book.id}`);
+    }
 
     if (!isEnded) return;
 
     const timer = setTimeout(() => {
       router.replace("/auctionhouse?alert=auction_ended");
-    }, 800); // reduced delay for consistency
+    }, 800);
 
     return () => clearTimeout(timer);
   }, [book, router]);

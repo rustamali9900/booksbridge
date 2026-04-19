@@ -13,6 +13,7 @@ export function useAuctionBooks() {
           title,
           author,
           price,
+          description,
           image_url,
           auction_status,
           auction_start_time,
