@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useRouter } from "next/navigation";
 import { useUserBooks } from "@/hooks/useUserBooks";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useExchangeBook } from "@/hooks/useExchangeBook";
+import ExchangeModal from "@/components/layout/ExchangeModal";
 
 export default function ExchangeButton({ bookId, ownerId, currentUserId }) {
   const router = useRouter();
@@ -20,6 +21,8 @@ export default function ExchangeButton({ bookId, ownerId, currentUserId }) {
   const isOwner = ownerId === currentUserId;
 
   function handleExchange() {
+    if (!selectedBook) return;
+
     exchangeMutation.mutate(
       {
         requestedBookId: bookId,
@@ -62,58 +65,22 @@ export default function ExchangeButton({ bookId, ownerId, currentUserId }) {
         onClick={() => setOpen(true)}
         className="w-full py-3 rounded-xl bg-gradient-to-br from-[#FF4B2B] to-[#FDC830] text-white font-normal shadow-lg hover:scale-[1.02] transition"
       >
-        Request Exchange
+        Exchange Book
       </button>
 
-      {open && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[#121212] border border-white/10 rounded-2xl w-[400px] p-6 shadow-2xl">
-            <h2 className="text-white font-bold text-lg mb-4">
-              Select a book to exchange
-            </h2>
-
-            <div className="max-h-[250px] overflow-y-auto flex flex-col gap-2">
-              {books.length === 0 ? (
-                <p className="text-white/50 text-sm">You don't own any books</p>
-              ) : (
-                books.map((b) => (
-                  <button
-                    key={b.id}
-                    onClick={() => setSelectedBook(b.id)}
-                    className={`p-3 rounded-lg border text-left transition ${
-                      selectedBook === b.id
-                        ? "border-[#FF4B2B] bg-white/10"
-                        : "border-white/10 hover:bg-white/5"
-                    }`}
-                  >
-                    <p className="text-white font-semibold">{b.title}</p>
-                  </button>
-                ))
-              )}
-            </div>
-
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => {
-                  setOpen(false);
-                  setSelectedBook(null);
-                }}
-                className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20"
-              >
-                Cancel
-              </button>
-
-              <button
-                disabled={!selectedBook || exchangeMutation.isPending}
-                onClick={() => handleExchange()}
-                className="px-4 py-2 rounded-lg bg-gradient-to-br from-[#FF4B2B] to-[#FDC830] text-black font-bold disabled:opacity-50"
-              >
-                {exchangeMutation.isPending ? "Processing..." : "Confirm"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ExchangeModal
+        open={open}
+        onClose={() => {
+          setOpen(false);
+          setSelectedBook(null);
+        }}
+        books={books}
+        selectedBook={selectedBook}
+        setSelectedBook={setSelectedBook}
+        onConfirm={handleExchange}
+        isPending={exchangeMutation.isPending}
+        mode="exchange"
+      />
     </>
   );
 }
