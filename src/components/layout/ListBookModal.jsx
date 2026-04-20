@@ -14,6 +14,7 @@ export default function ListBookModal({
     description: "",
     price: "",
     image: null,
+    copy_type: "standard",
   });
 
   const [errors, setErrors] = useState({});
@@ -59,16 +60,22 @@ export default function ListBookModal({
     e.preventDefault();
     if (!validate()) return;
 
+    const copyTypeMap = {
+      "Standard copy": "standard",
+      "First Edition": "first_edition",
+      "Signed Copy": "signed_copy",
+    };
+
     onSubmit({
       ...form,
       price: Number(form.price),
+      copy_type: copyTypeMap[form.copy_type],
     });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md px-4">
       <div className="w-full max-w-xl rounded-2xl border border-white/10 bg-zinc-950 p-5 shadow-2xl">
-        {/* Header */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold uppercase tracking-[0.2em] text-white">
             List a Book
@@ -85,7 +92,6 @@ export default function ListBookModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
           <div>
             <label className="mb-1 block text-xs uppercase text-white/70">
               Title *
@@ -102,7 +108,6 @@ export default function ListBookModal({
             )}
           </div>
 
-          {/* Author */}
           <div>
             <label className="mb-1 block text-xs uppercase text-white/70">
               Author *
@@ -119,7 +124,6 @@ export default function ListBookModal({
             )}
           </div>
 
-          {/* Description (reduced rows) */}
           <div>
             <label className="mb-1 block text-xs uppercase text-white/70">
               Description *
@@ -136,7 +140,6 @@ export default function ListBookModal({
             )}
           </div>
 
-          {/* Price */}
           <div>
             <label className="mb-1 block text-xs uppercase text-white/70">
               Price *
@@ -155,7 +158,23 @@ export default function ListBookModal({
             )}
           </div>
 
-          {/* Image */}
+          <div>
+            <label className="mb-1 block text-xs uppercase text-white/70">
+              Copy Type *
+            </label>
+
+            <select
+              name="copy_type"
+              value={form.copy_type}
+              onChange={handleChange}
+              className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white focus:border-orange-500/50 outline-none"
+            >
+              <option>Standard copy</option>
+              <option>First Edition</option>
+              <option>Signed Copy</option>
+            </select>
+          </div>
+
           <div>
             <label className="mb-1 block text-xs uppercase text-white/70">
               Book Image *
@@ -184,7 +203,6 @@ export default function ListBookModal({
             )}
           </div>
 
-          {/* Buttons */}
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"

@@ -1,10 +1,13 @@
 "use client";
 
-import Image from "next/image";
-import Navbar from "@/components/layout/Navbar";
-import Spinner from "@/components/ui/Spinner";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
 import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
+import Spinner from "@/components/ui/Spinner";
+import Navbar from "@/components/layout/Navbar";
+import { useCreateBook } from "@/hooks/useCreateBook";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import ListBookModal from "@/components/layout/ListBookModal";
 import { useExchangeZoneFilter } from "@/hooks/useExchangeZoneFilter";
 
 export default function ExchangeZonePage() {
@@ -16,6 +19,24 @@ export default function ExchangeZonePage() {
     currentUser,
     isLoading: isUserLoading,
   } = useCurrentUser();
+
+  const { mutate: createBook, isPending: isCreating } = useCreateBook();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleBookSubmit = (formData) => {
+    createBook(
+      { ...formData, type: "exchange" },
+      {
+        onSuccess: () => {
+          setIsModalOpen(false);
+        },
+        onError: (err) => {
+          alert(err.message);
+        },
+      },
+    );
+  };
 
   if (isPending) {
     return (
@@ -64,6 +85,13 @@ export default function ExchangeZonePage() {
               Trade your stories for new adventures. No currency, just quality
               literature exchange.
             </p>
+
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="mt-6 px-6 py-2.5 rounded-full bg-gradient-to-r from-[#ff330f] to-[#f6c438] text-white font-bold text-xs tracking-[0.2em] uppercase shadow-md hover:scale-[1.03] hover:shadow-lg transition-all duration-300 w-fit"
+            >
+              List a Book
+            </button>
           </div>
         </div>
 
@@ -166,6 +194,13 @@ export default function ExchangeZonePage() {
           </button>
         </div>
       </main>
+
+      <ListBookModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleBookSubmit}
+        isPending={isCreating}
+      />
     </div>
   );
 }

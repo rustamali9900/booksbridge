@@ -78,9 +78,14 @@ export function useCreateBook() {
 
       if (!publicUrl) {
         await supabase.storage.from("titlePage").remove([fileName]);
-
         throw new Error("Failed to generate image URL.");
       }
+
+      const copyTypeMap = {
+        "Standard copy": "standard",
+        "First Edition": "first_edition",
+        "Signed Copy": "signed_copy",
+      };
 
       const payload = {
         owner_id: user.id,
@@ -89,9 +94,9 @@ export function useCreateBook() {
         description: newBookData.description.trim(),
         price,
         image_url: publicUrl,
-        type: "sell",
+        type: newBookData.type,
         status: "available",
-        copy_type: "standard",
+        copy_type: copyTypeMap[newBookData.copy_type] || "standard",
       };
 
       const { data, error: insertError } = await supabase
@@ -102,7 +107,6 @@ export function useCreateBook() {
 
       if (insertError) {
         await supabase.storage.from("titlePage").remove([fileName]);
-
         throw new Error(`Failed to create listing: ${insertError.message}`);
       }
 
@@ -113,6 +117,7 @@ export function useCreateBook() {
       queryClient.invalidateQueries({ queryKey: ["books"] });
       queryClient.invalidateQueries({ queryKey: ["books", "available"] });
       queryClient.invalidateQueries({ queryKey: ["my-books"] });
+      queryClient.invalidateQueries({ queryKey: ["exchange_books"] });
     },
   });
 }

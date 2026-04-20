@@ -22,14 +22,17 @@ export default function Marketplace() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleBookSubmit = (formData) => {
-    createBook(formData, {
-      onSuccess: () => {
-        setIsModalOpen(false);
+    createBook(
+      { ...formData, type: "sell" },
+      {
+        onSuccess: () => {
+          setIsModalOpen(false);
+        },
+        onError: (err) => {
+          alert(err.message);
+        },
       },
-      onError: (err) => {
-        alert(err.message);
-      },
-    });
+    );
   };
 
   return (

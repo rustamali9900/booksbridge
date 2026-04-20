@@ -62,12 +62,6 @@ export default function Navbar({ user }) {
 
         {/* Right Side */}
         <div className="flex items-center gap-5 shrink-0">
-          <button className="hidden sm:flex items-center text-slate-400 hover:text-white transition-colors duration-300">
-            <span className="material-symbols-outlined text-[22px]">
-              notifications
-            </span>
-          </button>
-
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <p className="text-[10px] font-bold text-slate-500 tracking-[0.18em] uppercase">
