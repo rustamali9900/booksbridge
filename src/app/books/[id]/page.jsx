@@ -1,7 +1,8 @@
-import RequestButton from "@/components/ui/RequestButton";
-import { createServerSupabase } from "@/lib/supabase-server";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import RequestButton from "@/components/ui/RequestButton";
+import { createServerSupabase } from "@/lib/supabase-server";
+import ExchangeButton from "@/components/ui/ExchangeButton";
 
 export default async function BookDetailsPage({ params }) {
   const { id } = await params;
@@ -57,8 +58,14 @@ export default async function BookDetailsPage({ params }) {
               >
                 You own this book
               </button>
-            ) : (
+            ) : book.type === "sell" ? (
               <RequestButton
+                bookId={book.id}
+                ownerId={book.owner_id}
+                currentUserId={user?.id}
+              />
+            ) : (
+              <ExchangeButton
                 bookId={book.id}
                 ownerId={book.owner_id}
                 currentUserId={user?.id}
