@@ -40,6 +40,45 @@ export function useBooks() {
   };
 }
 
+export function useMysteryBooks() {
+  const {
+    data: books = [],
+    isPending,
+    error,
+  } = useQuery({
+    queryKey: ["mystery_books"],
+
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("books")
+        .select(
+          `
+          *,
+          profiles (
+            full_name,
+            avatar_url
+          )
+        `,
+        )
+        .in("status", ["available", "pending"])
+        .eq("type", "mystery")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+  });
+
+  return {
+    books,
+    isPending,
+    error,
+  };
+}
+
 export function useExchangeBooks() {
   const {
     data: books = [],
