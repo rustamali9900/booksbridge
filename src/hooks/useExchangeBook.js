@@ -29,7 +29,6 @@ const exchangeBooks = async ({
     throw new Error("You do not own this book");
   }
 
-  // 🔥 Swap ownership
   const { error: err1 } = await supabase
     .from("books")
     .update({ owner_id: currentUserId })
@@ -44,7 +43,6 @@ const exchangeBooks = async ({
 
   if (err2) throw err2;
 
-  // 🔥 Delete ALL related requests (final fix)
   const { error: deleteError } = await supabase
     .from("requests")
     .delete()
