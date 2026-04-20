@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 
 export function useLiveAuction(bookId, userId) {
   const queryClient = useQueryClient();
-  const router = useRouter();
   const [timeLeft, setTimeLeft] = useState(null);
 
   const hasResolvedRef = useRef(false);
@@ -63,14 +62,24 @@ export function useLiveAuction(bookId, userId) {
         return;
       }
 
-      await queryClient.invalidateQueries({
-        queryKey: ["auction_book", bookId],
-        refetchType: "all",
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["auction_book", bookId],
+          refetchType: "all",
+        }),
 
-      await queryClient.invalidateQueries({
-        queryKey: ["auction_bids", bookId],
-      });
+        queryClient.invalidateQueries({
+          queryKey: ["auction_bids", bookId],
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: ["requests", bookId],
+        }),
+      ]);
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000);
     } catch (err) {
       console.error(err);
       hasResolvedRef.current = false;

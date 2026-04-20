@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useAuctionBooks } from "@/hooks/useAuctionBooks";
+import { useAuctionBooks } from "@/hooks/useBooks";
 import Navbar from "@/components/layout/Navbar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
