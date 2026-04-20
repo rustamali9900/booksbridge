@@ -7,6 +7,7 @@ export default function ListBookModal({
   onClose,
   onSubmit,
   isPending,
+  mode,
 }) {
   const [form, setForm] = useState({
     title: "",
@@ -15,6 +16,7 @@ export default function ListBookModal({
     price: "",
     image: null,
     copy_type: "standard",
+    genre_tags: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -34,6 +36,10 @@ export default function ListBookModal({
     }
 
     if (!form.image) newErrors.image = "Book image is required";
+
+    if (mode === "mystery" && !form.genre_tags.trim()) {
+      newErrors.genre_tags = "Genre tags are required";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -66,16 +72,32 @@ export default function ListBookModal({
       "Signed Copy": "signed_copy",
     };
 
+    const genreTags =
+      mode === "mystery"
+        ? form.genre_tags
+            .trim()
+            .toLowerCase()
+            .split(" ")
+            .filter(Boolean)
+            .map((tag) => tag.replace(/\s+/g, "_"))
+        : undefined;
+
     onSubmit({
-      ...form,
+      title: form.title,
+      author: form.author,
+      description: form.description,
       price: Number(form.price),
+      image: form.image,
       copy_type: copyTypeMap[form.copy_type],
+      genre_tags: genreTags,
     });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md px-4">
+      {/* MODAL CARD */}
       <div className="w-full max-w-xl rounded-2xl border border-white/10 bg-zinc-950 p-5 shadow-2xl">
+        {/* HEADER */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold uppercase tracking-[0.2em] text-white">
             List a Book
@@ -91,7 +113,18 @@ export default function ListBookModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="
+            space-y-4 
+            max-h-[75vh] 
+            overflow-y-auto 
+            pr-2
+            scrollbar-thin 
+            scrollbar-thumb-white/10 
+            scrollbar-track-transparent
+          "
+        >
           <div>
             <label className="mb-1 block text-xs uppercase text-white/70">
               Title *
@@ -101,10 +134,10 @@ export default function ListBookModal({
               name="title"
               value={form.title}
               onChange={handleChange}
-              className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white focus:border-orange-500/50 outline-none"
+              className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white outline-none"
             />
             {errors.title && (
-              <p className="text-xs text-red-400 mt-1">{errors.title}</p>
+              <p className="text-xs text-red-400">{errors.title}</p>
             )}
           </div>
 
@@ -117,10 +150,10 @@ export default function ListBookModal({
               name="author"
               value={form.author}
               onChange={handleChange}
-              className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white focus:border-orange-500/50 outline-none"
+              className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white outline-none"
             />
             {errors.author && (
-              <p className="text-xs text-red-400 mt-1">{errors.author}</p>
+              <p className="text-xs text-red-400">{errors.author}</p>
             )}
           </div>
 
@@ -133,10 +166,10 @@ export default function ListBookModal({
               value={form.description}
               onChange={handleChange}
               rows={3}
-              className="w-full resize-none rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white focus:border-orange-500/50 outline-none"
+              className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white outline-none"
             />
             {errors.description && (
-              <p className="text-xs text-red-400 mt-1">{errors.description}</p>
+              <p className="text-xs text-red-400">{errors.description}</p>
             )}
           </div>
 
@@ -147,14 +180,12 @@ export default function ListBookModal({
             <input
               type="number"
               name="price"
-              min="0"
-              step="0.01"
               value={form.price}
               onChange={handleChange}
-              className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white focus:border-orange-500/50 outline-none"
+              className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white outline-none"
             />
             {errors.price && (
-              <p className="text-xs text-red-400 mt-1">{errors.price}</p>
+              <p className="text-xs text-red-400">{errors.price}</p>
             )}
           </div>
 
@@ -167,7 +198,7 @@ export default function ListBookModal({
               name="copy_type"
               value={form.copy_type}
               onChange={handleChange}
-              className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white focus:border-orange-500/50 outline-none"
+              className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white outline-none"
             >
               <option>Standard copy</option>
               <option>First Edition</option>
@@ -175,35 +206,50 @@ export default function ListBookModal({
             </select>
           </div>
 
+          {mode === "mystery" && (
+            <div>
+              <label className="mb-1 block text-xs uppercase text-white/70">
+                Genre Tags *
+              </label>
+
+              <input
+                type="text"
+                name="genre_tags"
+                value={form.genre_tags}
+                onChange={handleChange}
+                placeholder="e.g. thriller horror mystery"
+                className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white outline-none"
+              />
+
+              <p className="mt-1 text-[10px] text-white/40">
+                Space-separated → stored as lowercase_with_underscores
+              </p>
+
+              {errors.genre_tags && (
+                <p className="text-xs text-red-400">{errors.genre_tags}</p>
+              )}
+            </div>
+          )}
+
           <div>
             <label className="mb-1 block text-xs uppercase text-white/70">
               Book Image *
             </label>
 
-            <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/15 bg-black/30 px-4 py-6 text-center hover:border-orange-500/40">
-              <span className="text-sm text-white/80">
-                {form.image ? form.image.name : "Upload book cover"}
-              </span>
-
-              <span className="text-xs text-white/40 mt-1">
-                PNG, JPG, JPEG, WEBP
-              </span>
-
-              <input
-                type="file"
-                name="image"
-                accept=".png,.jpg,.jpeg,.webp"
-                onChange={handleChange}
-                className="hidden"
-              />
-            </label>
+            <input
+              type="file"
+              name="image"
+              accept=".png,.jpg,.jpeg,.webp"
+              onChange={handleChange}
+              className="w-full text-white"
+            />
 
             {errors.image && (
-              <p className="text-xs text-red-400 mt-1">{errors.image}</p>
+              <p className="text-xs text-red-400">{errors.image}</p>
             )}
           </div>
 
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex justify-end gap-3 pt-2 pb-2">
             <button
               type="button"
               onClick={onClose}
@@ -223,6 +269,22 @@ export default function ListBookModal({
           </div>
         </form>
       </div>
+
+      <style jsx global>{`
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      `}</style>
     </div>
   );
 }
