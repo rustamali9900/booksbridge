@@ -31,12 +31,12 @@ export default function BookCard({ book, currentUserId }) {
             }
             alt={book?.title ?? "Book Cover"}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            sizes="180px"
             className="object-cover grayscale-[30%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
           />
 
           {(status === "available" || status === "pending") && (
-            <div className="absolute top-4 right-4 z-10 bg-black/80 backdrop-blur-md px-3 py-1 rounded-sm border border-white/10">
+            <div className="absolute top-3 right-3 z-10 bg-black/80 backdrop-blur-md px-2 py-1 rounded-sm border border-white/10">
               <span
                 className={`text-[9px] font-bold tracking-[0.1em] ${statusStyles[status]}`}
               >
@@ -48,22 +48,24 @@ export default function BookCard({ book, currentUserId }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-80 pointer-events-none" />
         </div>
 
-        <div className="p-6 flex flex-col flex-1">
-          <div className="flex justify-between items-start gap-3 mb-2">
-            <h3 className="flex-1 text-base font-bold leading-tight line-clamp-2 uppercase tracking-tight text-white">
+        <div className="p-4 flex flex-col flex-1">
+          <div className="flex justify-between items-start gap-2 mb-2">
+            <h3 className="flex-1 text-sm font-bold leading-tight line-clamp-2 uppercase tracking-tight text-white">
               {book?.title ?? "Untitled Book"}
             </h3>
 
-            <span className="text-base font-semibold text-white whitespace-nowrap">
+            <span className="text-sm font-semibold text-white whitespace-nowrap">
               ${book?.price?.toLocaleString() ?? "0"}
             </span>
           </div>
-          <p className="text-slate-500 text-xs mb-6 font-medium line-clamp-1">
+
+          <p className="text-slate-500 text-[11px] mb-4 font-medium line-clamp-1">
             {book?.author ?? "Unknown Author"} •{" "}
             {book?.copy_type ?? "Standard Edition"}
           </p>
-          <div className="flex items-center gap-3 mb-6 mt-auto">
-            <div className="relative size-8 rounded-full overflow-hidden border border-white/10 bg-zinc-900 shrink-0">
+
+          <div className="flex items-center gap-3 mt-auto">
+            <div className="relative size-6 rounded-full overflow-hidden border border-white/10 bg-zinc-900 shrink-0">
               <Image
                 src={
                   book?.profiles?.avatar_url ??
@@ -73,7 +75,7 @@ export default function BookCard({ book, currentUserId }) {
                 }
                 alt={book?.profiles?.full_name ?? "Seller"}
                 fill
-                sizes="32px"
+                sizes="24px"
                 className="object-cover grayscale"
               />
             </div>
@@ -89,7 +91,7 @@ export default function BookCard({ book, currentUserId }) {
                 </span>
               </div>
             </div>
-          </div>{" "}
+          </div>
         </div>
       </div>
     </Link>
