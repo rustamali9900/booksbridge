@@ -61,10 +61,8 @@ export default function ExchangeZonePage() {
 
   return (
     <div className="min-h-screen bg-black text-slate-100 font-sans">
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-black px-6 py-4">
-        <div className="mx-auto max-w-[1600px]">
-          <Navbar user={currentUser} />
-        </div>
+      <header className="sticky top-0 z-20 border-b border-white/5 bg-black px-6 ">
+        <Navbar user={currentUser} />
       </header>
 
       <main className="mx-auto max-w-7xl px-6 py-10">
@@ -188,10 +186,6 @@ export default function ExchangeZonePage() {
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600">
             {books.length} Collection{books.length !== 1 ? "s" : ""} Available
           </p>
-
-          <button className="rounded-full border border-white/10 px-8 py-3 text-xs font-black uppercase tracking-[0.3em] text-white transition-all hover:bg-white/5">
-            Explore More
-          </button>
         </div>
       </main>
 
