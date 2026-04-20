@@ -11,66 +11,37 @@ export function useCreateBook() {
         error: authError,
       } = await supabase.auth.getUser();
 
-      if (authError) {
-        throw new Error("Failed to verify your account. Please try again.");
+      if (authError || !user) {
+        throw new Error("Authentication failed.");
       }
 
-      if (!user) {
-        throw new Error("You must be logged in to list a book.");
-      }
-
-      if (!newBookData.title?.trim()) {
-        throw new Error("Book title is required.");
-      }
-
-      if (!newBookData.author?.trim()) {
-        throw new Error("Author name is required.");
-      }
-
-      if (!newBookData.description?.trim()) {
-        throw new Error("Book description is required.");
-      }
+      if (!newBookData.title?.trim()) throw new Error("Title required");
+      if (!newBookData.author?.trim()) throw new Error("Author required");
+      if (!newBookData.description?.trim())
+        throw new Error("Description required");
 
       const price = Number(newBookData.price);
-
       if (Number.isNaN(price) || price <= 0) {
-        throw new Error("Please enter a valid price.");
+        throw new Error("Invalid price");
       }
 
-      if (!newBookData.image) {
-        throw new Error("Please upload a book image.");
+      if (!newBookData.image) throw new Error("Image required");
+
+      const file = newBookData.image;
+      const ext = file.name.split(".").pop()?.toLowerCase();
+
+      const allowed = ["jpg", "jpeg", "png", "webp"];
+      if (!allowed.includes(ext)) {
+        throw new Error("Invalid image type");
       }
 
-      const imageFile = newBookData.image;
-      const extension = imageFile.name.split(".").pop()?.toLowerCase();
-
-      const allowedExtensions = ["jpg", "jpeg", "png", "webp"];
-
-      if (!allowedExtensions.includes(extension)) {
-        throw new Error(
-          "Invalid image type. Only JPG, JPEG, PNG and WEBP are allowed.",
-        );
-      }
-
-      const maxSize = 5 * 1024 * 1024;
-
-      if (imageFile.size > maxSize) {
-        throw new Error("Image size must be smaller than 5MB.");
-      }
-
-      const fileName = `${user.id}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+      const fileName = `${user.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from("titlePage")
-        .upload(fileName, imageFile, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: imageFile.type,
-        });
+        .upload(fileName, file);
 
-      if (uploadError) {
-        throw new Error(`Failed to upload image: ${uploadError.message}`);
-      }
+      if (uploadError) throw new Error(uploadError.message);
 
       const {
         data: { publicUrl },
@@ -78,14 +49,20 @@ export function useCreateBook() {
 
       if (!publicUrl) {
         await supabase.storage.from("titlePage").remove([fileName]);
-        throw new Error("Failed to generate image URL.");
+        throw new Error("Image URL failed");
       }
 
       const copyTypeMap = {
-        "Standard copy": "standard",
-        "First Edition": "first_edition",
-        "Signed Copy": "signed_copy",
+        standard: "standard",
+        first_edition: "first_edition",
+        signed_copy: "signed_copy",
       };
+
+      const genre_tags =
+        Array.isArray(newBookData.genre_tags) &&
+        newBookData.genre_tags.length > 0
+          ? newBookData.genre_tags
+          : null;
 
       const payload = {
         owner_id: user.id,
@@ -97,17 +74,19 @@ export function useCreateBook() {
         type: newBookData.type,
         status: "available",
         copy_type: copyTypeMap[newBookData.copy_type] || "standard",
+
+        ...(genre_tags ? { genre_tags } : {}),
       };
 
-      const { data, error: insertError } = await supabase
+      const { data, error } = await supabase
         .from("books")
         .insert([payload])
         .select()
         .single();
 
-      if (insertError) {
+      if (error) {
         await supabase.storage.from("titlePage").remove([fileName]);
-        throw new Error(`Failed to create listing: ${insertError.message}`);
+        throw new Error(error.message);
       }
 
       return data;
@@ -118,6 +97,7 @@ export function useCreateBook() {
       queryClient.invalidateQueries({ queryKey: ["books", "available"] });
       queryClient.invalidateQueries({ queryKey: ["my-books"] });
       queryClient.invalidateQueries({ queryKey: ["exchange_books"] });
+      queryClient.invalidateQueries({ queryKey: ["mystery_books"] });
     },
   });
 }

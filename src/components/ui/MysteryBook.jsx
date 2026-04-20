@@ -1,4 +1,8 @@
+"use client";
+
 import Image from "next/image";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import MysteryExchangeButton from "@/components/ui/MysteryExchangeButton";
 
 const genreIcons = {
   cyberpunk: { icon: "bolt", color: "text-cyan-400" },
@@ -34,8 +38,13 @@ const genreIcons = {
 const getIcon = (g) => genreIcons[g] || genreIcons.default;
 
 export default function MysteryBook({ book }) {
+  const { currentUser } = useCurrentUser();
+
+  const isOwner = currentUser?.id === book.owner_id;
+
   return (
     <div className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-slate-800 hover:border-primary/40 transition-all duration-500">
+      {/* IMAGE */}
       <div className="absolute inset-0 scale-110">
         <Image
           src={
@@ -52,13 +61,18 @@ export default function MysteryBook({ book }) {
       <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/10 to-transparent opacity-70" />
 
       <div className="relative h-full px-5 py-5 flex flex-col justify-between z-10">
+        {/* TOP */}
         <div className="flex justify-between items-start">
           <span className="text-[10px] font-black uppercase px-2 py-1 bg-yellow-400 text-black rounded tracking-widest">
             Mystery
           </span>
 
-          <span className="text-[15px] font-bold text-black flex items-center gap-1">
-            ⏳ Hidden
+          <span className="text-[15px] font-bold text-white flex items-center gap-1">
+            {book.copy_type === "standard"
+              ? "Standard"
+              : book.copy_type === "first_copy"
+                ? "First Copy"
+                : "Signed Copy"}
           </span>
         </div>
 
@@ -92,9 +106,20 @@ export default function MysteryBook({ book }) {
           </p>
         </div>
 
-        <button className="mt-4 mx-2 w-[calc(100%-16px)] bg-gradient-to-r from-[#e42c0c] to-[#e4aa0a] text-white font-normal py-3 rounded-lg text-[11px] uppercase tracking-[0.25em] flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all">
-          Swap Instantly
-        </button>
+        {isOwner ? (
+          <button
+            disabled
+            className="mt-4 mx-2 w-[calc(100%-16px)] bg-gray-800 text-slate-400 font-bold py-3 rounded-lg text-[11px] uppercase tracking-[0.25em] cursor-not-allowed"
+          >
+            You Own This
+          </button>
+        ) : (
+          <MysteryExchangeButton
+            bookId={book.id}
+            ownerId={book.owner_id}
+            currentUserId={currentUser?.id}
+          />
+        )}
       </div>
     </div>
   );
