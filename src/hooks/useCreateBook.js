@@ -98,6 +98,7 @@ export function useCreateBook() {
       queryClient.invalidateQueries({ queryKey: ["my-books"] });
       queryClient.invalidateQueries({ queryKey: ["exchange_books"] });
       queryClient.invalidateQueries({ queryKey: ["mystery_books"] });
+      queryClient.invalidateQueries({ queryKey: ["all-books"] });
     },
   });
 }

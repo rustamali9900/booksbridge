@@ -48,6 +48,7 @@ export const useAcceptRequest = () => {
       queryClient.invalidateQueries({ queryKey: ["books"] });
       queryClient.invalidateQueries({ queryKey: ["books", bookId] });
       queryClient.invalidateQueries({ queryKey: ["requests"] });
+      queryClient.invalidateQueries({ queryKey: ["all-books"] });
       queryClient.removeQueries({ queryKey: ["request-status", bookId] });
     },
   });

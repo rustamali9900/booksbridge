@@ -64,6 +64,7 @@ export function useExchangeBook() {
       queryClient.invalidateQueries({ queryKey: ["books"] });
       queryClient.invalidateQueries({ queryKey: ["user-books"] });
       queryClient.invalidateQueries({ queryKey: ["requests"] });
+      queryClient.invalidateQueries({ queryKey: ["all-books"] });
     },
   });
 }
