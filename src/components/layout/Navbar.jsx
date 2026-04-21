@@ -17,7 +17,6 @@ export default function Navbar({ user }) {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-black/90 backdrop-blur-md">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        {/* Logo */}
         <Link
           href="/dashboard"
           className="flex items-center gap-3 shrink-0 group"
@@ -37,7 +36,6 @@ export default function Navbar({ user }) {
           </h1>
         </Link>
 
-        {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-10">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
@@ -60,7 +58,6 @@ export default function Navbar({ user }) {
           })}
         </nav>
 
-        {/* Right Side */}
         <div className="flex items-center gap-5 shrink-0">
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
@@ -73,7 +70,10 @@ export default function Navbar({ user }) {
               </p>
             </div>
 
-            <div className="relative size-10 rounded-full border border-white/20 overflow-hidden ring-1 ring-white/10 ring-offset-2 ring-offset-black bg-zinc-900">
+            <Link
+              href="/profile"
+              className="relative size-10 rounded-full border border-white/20 overflow-hidden ring-1 ring-white/10 ring-offset-2 ring-offset-black bg-zinc-900"
+            >
               <Image
                 src={
                   user?.avatar_url ??
@@ -86,10 +86,9 @@ export default function Navbar({ user }) {
                 sizes="40px"
                 className="object-cover"
               />
-            </div>
+            </Link>
           </div>
 
-          {/* Mobile menu button */}
           <button className="lg:hidden text-white flex items-center hover:text-primary transition-colors duration-300">
             <span className="material-symbols-outlined text-[26px]">menu</span>
           </button>
