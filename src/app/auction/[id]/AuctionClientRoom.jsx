@@ -62,6 +62,12 @@ export default function AuctionClientRoom({ bookId, userId }) {
     }
 
     if (!isEnded) return;
+
+    const timer = setTimeout(() => {
+      router.replace("/auctionhouse?alert=auction_ended");
+    }, 800);
+
+    return () => clearTimeout(timer);
   }, [book, router]);
 
   if (!book) {
