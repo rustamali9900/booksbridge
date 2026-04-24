@@ -56,20 +56,6 @@ export default function Marketplace() {
           >
             List a Book
           </button>
-
-          <div className="w-full max-w-xl flex items-center h-12 pl-5 pr-2 rounded-lg border border-orange-500/40 bg-black/20 backdrop-blur-md transition focus-within:border-orange-400 focus-within:shadow-none">
-            <input
-              className="w-full text-white placeholder:text-slate-600 text-xs font-light tracking-wide bg-transparent outline-none focus:outline-none"
-              placeholder="Search for rare editions, authors, or genres..."
-              type="text"
-            />
-
-            <button className="size-9 flex items-center justify-center text-orange-400 hover:text-orange-300 transition-all">
-              <span className="material-symbols-outlined text-[18px]">
-                search
-              </span>
-            </button>
-          </div>
         </div>
 
         {isPending || isUserLoading ? (

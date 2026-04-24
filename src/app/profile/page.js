@@ -1,19 +1,25 @@
 "use client";
 
-import { useRef } from "react";
 import Image from "next/image";
+import { useRef, useState } from "react";
+import { useLogout } from "@/hooks/useLogout";
+import { useDeleteBook } from "@/hooks/useDeleteBook";
 import { useUserBooks } from "@/hooks/useAllUserBooks";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useUploadAvatar } from "@/hooks/useUploadAvatar";
+import ConfirmModal from "@/components/layout/ConfirmModal";
 
 export default function ProfilePage() {
   const fileInputRef = useRef(null);
+  const [selectedBook, setSelectedBook] = useState(null);
 
   const { currentUserId, currentUser, isLoading, error } = useCurrentUser();
 
   const { data: userBooks = [] } = useUserBooks(currentUserId);
 
   const uploadAvatarMutation = useUploadAvatar();
+  const logoutMutation = useLogout();
+  const deleteBookMutation = useDeleteBook();
 
   const handleAvatarChange = (event) => {
     const file = event.target.files?.[0];
@@ -23,6 +29,12 @@ export default function ProfilePage() {
       file,
       userId: currentUserId,
     });
+  };
+
+  const handleDelete = () => {
+    if (!selectedBook) return;
+    deleteBookMutation.mutate(selectedBook);
+    setSelectedBook(null);
   };
 
   if (isLoading) {
@@ -96,6 +108,12 @@ export default function ProfilePage() {
                 </p>
               </div>
             </div>
+
+            <button onClick={() => logoutMutation.mutate()}>
+              <span className=" cursor-pointer material-symbols-outlined text-white text-2xl">
+                logout
+              </span>
+            </button>
           </div>
         </section>
 
@@ -169,8 +187,17 @@ export default function ProfilePage() {
               {userBooks.map((book) => (
                 <div
                   key={book.id}
-                  className="overflow-hidden rounded-lg border border-white/10 bg-[#111111] transition hover:border-[#fa4d2e]/30"
+                  className="relative overflow-hidden rounded-lg border border-white/10 bg-[#111111] transition hover:border-[#fa4d2e]/30"
                 >
+                  <button
+                    onClick={() => setSelectedBook(book.id)}
+                    className="absolute top-2 right-2 z-10 cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-red-700 text-sm">
+                      delete
+                    </span>
+                  </button>
+
                   <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#1a1a1a]">
                     {book.image_url ? (
                       <Image
@@ -219,6 +246,12 @@ export default function ProfilePage() {
           )}
         </section>
       </div>
+
+      <ConfirmModal
+        open={!!selectedBook}
+        onCancel={() => setSelectedBook(null)}
+        onConfirm={handleDelete}
+      />
     </main>
   );
 }
