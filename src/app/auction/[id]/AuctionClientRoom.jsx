@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import { useState, useRef, useEffect } from "react";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useLiveAuction } from "@/hooks/useLiveAuction";
 
 function timeAgo(dateString) {
@@ -30,6 +31,12 @@ export default function AuctionClientRoom({ bookId, userId }) {
     bookId,
     userId,
   );
+
+  const {
+    currentUserId,
+    currentUser,
+    isLoading: isUserLoading,
+  } = useCurrentUser();
 
   const [customBid, setCustomBid] = useState("");
   const [isStarting, setIsStarting] = useState(false);
@@ -140,7 +147,7 @@ export default function AuctionClientRoom({ bookId, userId }) {
     <div className="relative flex h-auto min-h-screen w-full flex-col bg-black overflow-x-hidden font-display antialiased selection:bg-[#FF4B2B]/30">
       <div className="flex h-full grow flex-col">
         <header className="flex items-center justify-between border-b border-white/10 bg-black/40 backdrop-blur-xl px-4 md:px-10 py-5 sticky top-0 z-50">
-          <Navbar />
+          <Navbar user={currentUser} />
         </header>
 
         <div className="px-4 md:px-10 pt-6 flex items-center justify-between max-w-[1440px] mx-auto w-full">
