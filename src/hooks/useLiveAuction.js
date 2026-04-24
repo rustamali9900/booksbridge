@@ -76,10 +76,6 @@ export function useLiveAuction(bookId, userId) {
           queryKey: ["requests", bookId],
         }),
       ]);
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 5000);
     } catch (err) {
       console.error(err);
       hasResolvedRef.current = false;
