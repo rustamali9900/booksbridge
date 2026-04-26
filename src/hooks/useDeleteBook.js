@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
 const deleteBook = async (bookId) => {
-  console.log(bookId);
   const { error } = await supabase.from("books").delete().eq("id", bookId);
   if (error) throw error;
 };
