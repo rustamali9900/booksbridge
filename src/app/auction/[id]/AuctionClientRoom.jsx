@@ -56,16 +56,14 @@ export default function AuctionClientRoom({ bookId, userId }) {
       totalDurationRef.current = remaining || 60;
     }
 
-    const isEnded = book.auction_status === "sold" || timeLeft === 0;
-    if (isEnded) {
-      router.push(`/auction/${book.id}`);
-    }
-
-    if (!isEnded) return;
+    // Only auto-redirect once the DB has confirmed the auction is resolved.
+    // Checking timeLeft === 0 here is unreliable because timeLeft is not in
+    // the deps array and would be a stale closure value.
+    if (book.auction_status !== "sold") return;
 
     const timer = setTimeout(() => {
-      router.replace("/auctionhouse?alert=auction_ended");
-    }, 800);
+      router.replace("/auctionhouse");
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [book, router]);

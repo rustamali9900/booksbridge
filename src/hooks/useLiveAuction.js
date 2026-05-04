@@ -75,6 +75,11 @@ export function useLiveAuction(bookId, userId) {
         queryClient.invalidateQueries({
           queryKey: ["requests", bookId],
         }),
+
+        // Invalidate the auctionhouse list so it reflects "sold" immediately
+        queryClient.invalidateQueries({
+          queryKey: ["auction_books"],
+        }),
       ]);
     } catch (err) {
       console.error(err);
