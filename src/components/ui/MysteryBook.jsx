@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
 import MysteryExchangeButton from "@/components/ui/MysteryExchangeButton";
 
 const genreIcons = {
@@ -14,7 +13,6 @@ const genreIcons = {
   fantasy: { icon: "auto_awesome", color: "text-purple-400" },
   sci_fi: { icon: "psychology", color: "text-blue-400" },
   thriller: { icon: "warning", color: "text-orange-400" },
-
   drama: { icon: "theater_comedy", color: "text-rose-400" },
   fiction: { icon: "menu_book", color: "text-emerald-400" },
   non_fiction: { icon: "library_books", color: "text-green-300" },
@@ -31,20 +29,19 @@ const genreIcons = {
   supernatural: { icon: "visibility", color: "text-violet-400" },
   mystery_thriller: { icon: "travel_explore", color: "text-yellow-500" },
   self_help: { icon: "self_improvement", color: "text-green-400" },
-
   default: { icon: "book", color: "text-slate-400" },
 };
 
 const getIcon = (g) => genreIcons[g] || genreIcons.default;
 
-export default function MysteryBook({ book }) {
-  const { currentUser } = useCurrentUser();
-
-  const isOwner = currentUser?.id === book.owner_id;
+// currentUserId is passed from the parent page so this component does not
+// subscribe to useCurrentUser() itself — avoids N redundant hook instances
+// for N cards on the page (one subscription at the page level is enough).
+export default function MysteryBook({ book, currentUserId }) {
+  const isOwner = currentUserId === book.owner_id;
 
   return (
     <div className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-slate-800 hover:border-primary/40 transition-all duration-500">
-      {/* IMAGE */}
       <div className="absolute inset-0 scale-110">
         <Image
           src={
@@ -53,6 +50,8 @@ export default function MysteryBook({ book }) {
           }
           alt="mystery"
           fill
+          loading="lazy"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           className="object-cover blur-[8px] brightness-95 saturate-95 scale-105 group-hover:scale-110 transition-all duration-700"
         />
       </div>
@@ -61,7 +60,6 @@ export default function MysteryBook({ book }) {
       <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/10 to-transparent opacity-70" />
 
       <div className="relative h-full px-5 py-5 flex flex-col justify-between z-10">
-        {/* TOP */}
         <div className="flex justify-between items-start">
           <span className="text-[10px] font-black uppercase px-2 py-1 bg-yellow-400 text-black rounded tracking-widest">
             Mystery
@@ -80,7 +78,6 @@ export default function MysteryBook({ book }) {
           <div className="flex flex-wrap gap-2">
             {book.genre_tags?.map((g, i) => {
               const data = getIcon(g);
-
               return (
                 <span
                   key={i}
@@ -117,7 +114,7 @@ export default function MysteryBook({ book }) {
           <MysteryExchangeButton
             bookId={book.id}
             ownerId={book.owner_id}
-            currentUserId={currentUser?.id}
+            currentUserId={currentUserId}
           />
         )}
       </div>

@@ -15,11 +15,8 @@ export function useBooks() {
         .from("books")
         .select(
           `
-          *,
-          profiles (
-            full_name,
-            avatar_url
-          )
+          id, title, author, price, status, image_url, copy_type, owner_id,
+          profiles ( full_name, avatar_url )
         `,
         )
         .in("status", ["available", "pending"])
@@ -53,13 +50,7 @@ export function useMysteryBooks() {
       const { data, error } = await supabase
         .from("books")
         .select(
-          `
-          *,
-          profiles (
-            full_name,
-            avatar_url
-          )
-        `,
+          "id, title, author, description, image_url, copy_type, genre_tags, owner_id",
         )
         .in("status", ["available", "pending"])
         .eq("type", "mystery")
@@ -92,13 +83,7 @@ export function useExchangeBooks() {
       const { data, error } = await supabase
         .from("books")
         .select(
-          `
-          *,
-          profiles (
-            full_name,
-            avatar_url
-          )
-        `,
+          "id, title, author, description, image_url, copy_type, owner_id",
         )
         .in("status", ["available", "pending"])
         .eq("type", "exchange")

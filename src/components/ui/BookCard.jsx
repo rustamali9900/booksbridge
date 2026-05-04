@@ -31,7 +31,8 @@ export default function BookCard({ book, currentUserId }) {
             }
             alt={book?.title ?? "Book Cover"}
             fill
-            sizes="180px"
+            loading="lazy"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="object-cover grayscale-[30%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
           />
 
