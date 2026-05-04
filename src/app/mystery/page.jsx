@@ -1,18 +1,22 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Spinner from "@/components/ui/Spinner";
 import Navbar from "@/components/layout/Navbar";
+import Pagination from "@/components/ui/Pagination";
 import { useMysteryBooks } from "@/hooks/useBooks";
 import { useCreateBook } from "@/hooks/useCreateBook";
 import MysteryBook from "@/components/ui/MysteryBook";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import ListBookModal from "@/components/layout/ListBookModal";
+import { usePagination } from "@/hooks/usePagination";
+
+const FILTERS = ["all", "horror", "thriller", "drama", "fiction"];
+const MAIN_GENRES = ["horror", "thriller", "drama", "fiction"];
 
 export default function MysteryPage() {
   const { books, isPending, error } = useMysteryBooks();
-  const { currentUser } = useCurrentUser();
-
+  const { currentUserId, currentUser } = useCurrentUser();
   const { mutate: createBook, isPending: isCreating } = useCreateBook();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,34 +26,31 @@ export default function MysteryPage() {
     createBook(
       { ...formData, type: "mystery" },
       {
-        onSuccess: () => {
-          setIsModalOpen(false);
-        },
-        onError: (err) => {
-          alert(err.message);
-        },
+        onSuccess: () => setIsModalOpen(false),
+        onError: (err) => alert(err.message),
       },
     );
   };
 
-  const filters = ["all", "horror", "thriller", "drama", "fiction"];
-
   const filteredBooks = useMemo(() => {
     if (!books) return [];
-
     if (activeFilter === "all") return books;
-
     return books.filter((book) => {
       const tags = (book.genre_tags || []).map((t) => t.toLowerCase());
-
       if (activeFilter === "others") {
-        const main = ["horror", "thriller", "drama", "fiction"];
-        return !tags.some((t) => main.includes(t));
+        return !tags.some((t) => MAIN_GENRES.includes(t));
       }
-
       return tags.includes(activeFilter);
     });
   }, [books, activeFilter]);
+
+  const { paginatedItems, page, totalPages, setPage } =
+    usePagination(filteredBooks);
+
+  // Reset to page 1 whenever the active filter changes
+  useEffect(() => {
+    setPage(1);
+  }, [activeFilter, setPage]);
 
   if (isPending) {
     return (
@@ -69,7 +70,7 @@ export default function MysteryPage() {
 
   return (
     <div className="min-h-screen bg-black text-slate-100 font-display">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-black px-6 ">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-black px-6">
         <Navbar user={currentUser} />
       </header>
 
@@ -89,7 +90,7 @@ export default function MysteryPage() {
         </div>
 
         <div className="flex gap-3 mb-10 overflow-x-auto pb-2">
-          {filters.map((f) => (
+          {FILTERS.map((f) => (
             <button
               key={f}
               onClick={() => setActiveFilter(f)}
@@ -109,11 +110,23 @@ export default function MysteryPage() {
             No mystery books available
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredBooks.map((book) => (
-              <MysteryBook key={book.id} book={book} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {paginatedItems.map((book) => (
+                <MysteryBook
+                  key={book.id}
+                  book={book}
+                  currentUserId={currentUserId}
+                />
+              ))}
+            </div>
+
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          </>
         )}
 
         <div className="mt-14 text-center text-[10px] text-slate-600 uppercase tracking-widest">

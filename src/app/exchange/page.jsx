@@ -2,38 +2,37 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Spinner from "@/components/ui/Spinner";
 import Navbar from "@/components/layout/Navbar";
+import Pagination from "@/components/ui/Pagination";
 import { useCreateBook } from "@/hooks/useCreateBook";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import ListBookModal from "@/components/layout/ListBookModal";
 import { useExchangeZoneFilter } from "@/hooks/useExchangeZoneFilter";
+import { usePagination } from "@/hooks/usePagination";
 
 export default function ExchangeZonePage() {
   const { filters, activeFilter, setActiveFilter, books, isPending, error } =
     useExchangeZoneFilter();
 
-  const {
-    currentUserId,
-    currentUser,
-    isLoading: isUserLoading,
-  } = useCurrentUser();
-
+  const { currentUser } = useCurrentUser();
   const { mutate: createBook, isPending: isCreating } = useCreateBook();
-
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { paginatedItems, page, totalPages, setPage } = usePagination(books);
+
+  // Reset to page 1 whenever the active filter changes
+  useEffect(() => {
+    setPage(1);
+  }, [activeFilter, setPage]);
 
   const handleBookSubmit = (formData) => {
     createBook(
       { ...formData, type: "exchange" },
       {
-        onSuccess: () => {
-          setIsModalOpen(false);
-        },
-        onError: (err) => {
-          alert(err.message);
-        },
+        onSuccess: () => setIsModalOpen(false),
+        onError: (err) => alert(err.message),
       },
     );
   };
@@ -61,7 +60,7 @@ export default function ExchangeZonePage() {
 
   return (
     <div className="min-h-screen bg-black text-slate-100 font-sans">
-      <header className="sticky top-0 z-20 border-b border-white/5 bg-black px-6 ">
+      <header className="sticky top-0 z-20 border-b border-white/5 bg-black px-6">
         <Navbar user={currentUser} />
       </header>
 
@@ -96,7 +95,6 @@ export default function ExchangeZonePage() {
         <div className="mb-8 flex gap-4 overflow-x-auto pb-4 [&::-webkit-scrollbar]:hidden">
           {filters.map((filter) => {
             const isActive = activeFilter === filter.key;
-
             return (
               <button
                 key={filter.key}
@@ -125,61 +123,69 @@ export default function ExchangeZonePage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {books.map((book) => (
-              <Link href={`/books/${book.id}`} key={book.id}>
-                <div className="group flex flex-col gap-4">
-                  <div className="relative aspect-[3/4] overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-xl">
-                    <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+          <>
+            <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {paginatedItems.map((book) => (
+                <Link href={`/books/${book.id}`} key={book.id}>
+                  <div className="group flex flex-col gap-4">
+                    <div className="relative aspect-[3/4] overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] backdrop-blur-xl">
+                      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
 
-                    <Image
-                      src={
-                        book.image_url ||
-                        `https://ui-avatars.com/api/?name=${encodeURIComponent(book.title)}`
-                      }
-                      alt={book.title}
-                      fill
-                      loading="lazy"
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    />
+                      <Image
+                        src={
+                          book.image_url ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(book.title)}`
+                        }
+                        alt={book.title}
+                        fill
+                        loading="lazy"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      />
 
-                    <div className="absolute left-4 top-4 z-20">
-                      <span className="rounded-full border border-white/10 bg-white/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-white backdrop-blur-md">
-                        {book.copy_type === "signed_copy"
-                          ? "Signed Copy"
-                          : book.copy_type === "first_edition"
-                            ? "First Edition"
-                            : "Standard"}
-                      </span>
+                      <div className="absolute left-4 top-4 z-20">
+                        <span className="rounded-full border border-white/10 bg-white/10 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-white backdrop-blur-md">
+                          {book.copy_type === "signed_copy"
+                            ? "Signed Copy"
+                            : book.copy_type === "first_edition"
+                              ? "First Edition"
+                              : "Standard"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-3 px-1">
-                    <div>
-                      <h3 className="text-base font-bold leading-tight text-white transition-colors group-hover:text-[#FDC830]">
-                        {book.title}
-                      </h3>
+                    <div className="space-y-3 px-1">
+                      <div>
+                        <h3 className="text-base font-bold leading-tight text-white transition-colors group-hover:text-[#FDC830]">
+                          {book.title}
+                        </h3>
 
-                      <p className="mt-1 text-xs font-medium text-slate-500">
-                        {book.author}
-                      </p>
-
-                      {book.description && (
-                        <p className="mt-3 line-clamp-3 text-xs leading-relaxed text-slate-600">
-                          {book.description}
+                        <p className="mt-1 text-xs font-medium text-slate-500">
+                          {book.author}
                         </p>
-                      )}
-                    </div>
 
-                    <button className="relative w-full rounded-lg border border-orange-400 bg-black py-2.5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 transition-all hover:scale-[1.01] hover:text-white active:scale-[0.98] before:absolute before:-inset-[1.5px] before:-z-10 before:rounded-lg before:bg-gradient-to-r before:from-[#d4290b] before:to-[#f3ba10]">
-                      View Details
-                    </button>
+                        {book.description && (
+                          <p className="mt-3 line-clamp-3 text-xs leading-relaxed text-slate-600">
+                            {book.description}
+                          </p>
+                        )}
+                      </div>
+
+                      <button className="relative w-full rounded-lg border border-orange-400 bg-black py-2.5 text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 transition-all hover:scale-[1.01] hover:text-white active:scale-[0.98] before:absolute before:-inset-[1.5px] before:-z-10 before:rounded-lg before:bg-gradient-to-r before:from-[#d4290b] before:to-[#f3ba10]">
+                        View Details
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          </>
         )}
 
         <div className="mt-16 flex flex-col items-center gap-6">

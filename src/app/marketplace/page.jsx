@@ -4,33 +4,27 @@ import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import BookCard from "@/components/ui/BookCard";
 import Spinner from "@/components/ui/Spinner";
+import Pagination from "@/components/ui/Pagination";
 import ListBookModal from "@/components/layout/ListBookModal";
 import { useBooks } from "@/hooks/useBooks";
 import { useCreateBook } from "@/hooks/useCreateBook";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { usePagination } from "@/hooks/usePagination";
 
 export default function Marketplace() {
   const { books, isPending, error } = useBooks();
   const { mutate: createBook, isPending: isCreating } = useCreateBook();
-
-  const {
-    currentUserId,
-    currentUser,
-    isLoading: isUserLoading,
-  } = useCurrentUser();
-
+  const { currentUserId, currentUser } = useCurrentUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { paginatedItems, page, totalPages, setPage } = usePagination(books);
 
   const handleBookSubmit = (formData) => {
     createBook(
       { ...formData, type: "sell" },
       {
-        onSuccess: () => {
-          setIsModalOpen(false);
-        },
-        onError: (err) => {
-          alert(err.message);
-        },
+        onSuccess: () => setIsModalOpen(false),
+        onError: (err) => alert(err.message),
       },
     );
   };
@@ -47,7 +41,7 @@ export default function Marketplace() {
 
           <p className="text-slate-400 max-w-xl text-sm mb-10 font-light">
             Discover premium editions from verified collectors. Secure, instant
-            transactions for the world's rarest literary treasures.
+            transactions for the world&apos;s rarest literary treasures.
           </p>
 
           <button
@@ -58,25 +52,33 @@ export default function Marketplace() {
           </button>
         </div>
 
-        {isPending || isUserLoading ? (
+        {isPending ? (
           <Spinner />
         ) : error ? (
           <div className="text-center text-primary py-16 font-bold tracking-widest uppercase text-sm">
             Error: {error.message}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
-            {books.map((book) => (
-              <BookCard
-                key={book.id}
-                book={book}
-                currentUserId={currentUserId}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+              {paginatedItems.map((book) => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  currentUserId={currentUserId}
+                />
+              ))}
+            </div>
+
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          </>
         )}
 
-        {!isPending && !isUserLoading && (
+        {!isPending && (
           <div className="mt-20 pt-10 border-t border-white/5 flex flex-col items-center gap-6">
             <p className="text-slate-600 text-[10px] font-medium uppercase tracking-[0.3em]">
               BooksBridge Marketplace © 2026
