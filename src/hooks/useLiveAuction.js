@@ -52,12 +52,20 @@ export function useLiveAuction(bookId, userId) {
     hasResolvedRef.current = true;
 
     try {
-      const { error } = await supabase.rpc("resolve_auction", {
+      const { data, error } = await supabase.rpc("resolve_auction", {
         p_book_id: bookId,
       });
 
       if (error) {
         console.error("resolve_auction failed", error);
+        hasResolvedRef.current = false;
+        return;
+      }
+
+      // RPC returned false: the server clock hasn't passed auction_end_time yet
+      // (clock skew between client and DB). Reset the flag so the timer retries
+      // on the next tick instead of silently giving up.
+      if (data === false) {
         hasResolvedRef.current = false;
         return;
       }

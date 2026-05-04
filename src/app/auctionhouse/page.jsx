@@ -5,12 +5,22 @@ import { useAuctionBooks } from "@/hooks/useBooks";
 import Navbar from "@/components/layout/Navbar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
+// A book is "live" only if the DB says in_auction AND the clock hasn't passed
+// auction_end_time. This guards against the lag between the timer hitting 0
+// and the resolve_auction RPC updating the DB.
+function isLive(book) {
+  return (
+    book.auction_status === "in_auction" &&
+    book.auction_end_time != null &&
+    new Date(book.auction_end_time) > new Date()
+  );
+}
+
 export default function AuctionHousePage() {
   const { data: books, isLoading, error } = useAuctionBooks();
   const router = useRouter();
 
-  const featuredBook =
-    books?.find((b) => b.auction_status === "in_auction") || books?.[0];
+  const featuredBook = books?.find((b) => isLive(b)) || books?.[0];
   const gridBooks = books?.filter((b) => b.id !== featuredBook?.id) || [];
 
   const {
@@ -75,7 +85,7 @@ export default function AuctionHousePage() {
                     <div className="flex-1 flex flex-col justify-between">
                       <div className="space-y-4">
                         <div className="flex items-center gap-3">
-                          {featuredBook.auction_status === "in_auction" ? (
+                          {isLive(featuredBook) ? (
                             <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#fa4d2e]/20 border border-[#fa4d2e]/30 text-[#fa4d2e] text-[10px] font-bold uppercase tracking-wider">
                               <span className="material-symbols-outlined text-[14px] animate-pulse">
                                 local_fire_department
@@ -110,7 +120,7 @@ export default function AuctionHousePage() {
                             </p>
                           </div>
 
-                          {featuredBook.auction_status === "in_auction" && (
+                          {isLive(featuredBook) && (
                             <div>
                               <p className="text-slate-500 text-[10px] uppercase tracking-wider mb-0.5">
                                 Status
@@ -128,7 +138,7 @@ export default function AuctionHousePage() {
                         </div>
                       </div>
 
-                      {featuredBook.auction_status === "in_auction" ? (
+                      {isLive(featuredBook) ? (
                         <div className="mt-6 flex flex-col sm:flex-row gap-3">
                           <button
                             onClick={() =>
@@ -180,7 +190,7 @@ export default function AuctionHousePage() {
                           alt={book.title}
                         />
                         <div className="absolute top-3 left-3 flex gap-2">
-                          {book.auction_status === "in_auction" ? (
+                          {isLive(book) ? (
                             <span className="bg-[#fa4d2e] text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase flex items-center gap-1">
                               Live
                             </span>
@@ -206,7 +216,7 @@ export default function AuctionHousePage() {
                             Rs {book.price.toLocaleString()}
                           </p>
 
-                          {book.auction_status === "in_auction" && (
+                          {isLive(book) && (
                             <button
                               onClick={() => router.push(`/auction/${book.id}`)}
                               className="bg-gradient-to-br from-[#FF4B2B] to-[#FDC830] px-3 py-1.5 text-[10px] font-bold text-white rounded"

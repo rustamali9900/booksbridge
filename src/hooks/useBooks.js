@@ -161,6 +161,7 @@ export function useAuctionBooks() {
           image_url,
           auction_status,
           auction_start_time,
+          auction_end_time,
           created_at
         `,
         )
