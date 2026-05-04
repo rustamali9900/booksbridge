@@ -2,8 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
 const acceptRequest = async ({ bookId, requesterId }) => {
-  // Fetch the book's current owner (seller) before transferring ownership.
-  // We need this id to increment their lent count atomically.
   const { data: book, error: fetchError } = await supabase
     .from("books")
     .select("owner_id")
@@ -28,14 +26,12 @@ const acceptRequest = async ({ bookId, requesterId }) => {
 
   if (deleteError) throw new Error(deleteError.message);
 
-  // Atomically increment items_lent_count for seller and items_bought_count
-  // for buyer via a single Postgres RPC (avoids read-modify-write race).
   const { error: statsError } = await supabase.rpc("record_book_sale", {
     p_seller_id: sellerId,
     p_buyer_id: requesterId,
   });
 
-  if (statsError) throw new Error(statsError.message);
+  if (statsError) console.error("record_book_sale RPC:", statsError.message);
 
   return { bookId };
 };
@@ -61,7 +57,6 @@ export const useAcceptRequest = () => {
       queryClient.invalidateQueries({ queryKey: ["books", bookId] });
       queryClient.invalidateQueries({ queryKey: ["requests"] });
       queryClient.invalidateQueries({ queryKey: ["all-books"] });
-      // Refresh the seller's profile stats displayed on the profile page
       queryClient.invalidateQueries({ queryKey: ["current-user"] });
       queryClient.removeQueries({ queryKey: ["request-status", bookId] });
     },
