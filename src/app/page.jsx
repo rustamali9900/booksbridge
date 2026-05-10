@@ -1,10 +1,6 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function HomePage() {
-  const router = useRouter();
-
   return (
     <div className="min-h-screen bg-black text-white font-sans antialiased selection:bg-[#fa4d2e] selection:text-white flex flex-col px-4 py-6">
       <header className="w-full max-w-6xl mx-auto flex items-center justify-between mb-12">
@@ -17,12 +13,13 @@ export default function HomePage() {
             Collection
           </button>
 
-          <button
-            onClick={() => router.push("/login")}
+          <Link
+            href="/login"
+            prefetch
             className="text-[11px] font-bold tracking-[0.18em] uppercase px-4 py-2 border border-white/20 rounded-full hover:bg-white hover:text-black transition"
           >
             Log In
-          </button>
+          </Link>
         </nav>
       </header>
 
@@ -44,20 +41,22 @@ export default function HomePage() {
           </p>
 
           <div className="flex flex-col items-center gap-5 pt-2">
-            <button
-              onClick={() => router.push("/signup")}
+            <Link
+              href="/signup"
+              prefetch
               className="bg-linear-to-r from-[#ff5132] to-[#fdd259] text-black px-8 py-3 rounded-full text-xs md:text-sm font-bold tracking-[0.18em] uppercase flex items-center gap-2 hover:scale-[1.02] transition"
             >
               Enter the Exchange
               <span>→</span>
-            </button>
+            </Link>
 
-            <button
-              onClick={() => router.push("/login")}
+            <Link
+              href="/login"
+              prefetch
               className="text-[11px] tracking-[0.18em] uppercase font-semibold text-white/50 hover:text-white underline underline-offset-4 decoration-white/20"
             >
               Already a member?
-            </button>
+            </Link>
           </div>
         </div>
       </main>

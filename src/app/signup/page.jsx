@@ -3,8 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function SignUpPage() {
@@ -32,14 +31,17 @@ export default function SignUpPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { fullName, email, password, confirmPassword } = formData;
+    const fullName = formData.fullName.trim().replace(/\s+/g, " ");
+    const email = formData.email.trim();
+    const password = formData.password;
+    const confirmPassword = formData.confirmPassword;
 
-    if (!fullName.trim() || !email.trim() || !password || !confirmPassword) {
+    if (!fullName || !email || !password || !confirmPassword) {
       setValidationError("All fields are required.");
       return;
     }
 
-    if (fullName.trim().length < 2) {
+    if (fullName.length < 2) {
       setValidationError("Full name is too short.");
       return;
     }
@@ -66,13 +68,11 @@ export default function SignUpPage() {
     if (response.success) {
       toast.success("Signup successful! Welcome to Booksbridge 🚀", {
         position: "top-right",
-        autoClose: 1500,
+        autoClose: 1200,
         theme: "dark",
       });
 
-      setTimeout(() => {
-        router.push("/marketplace");
-      }, 1500);
+      router.replace("/marketplace");
     }
   };
 
@@ -80,8 +80,6 @@ export default function SignUpPage() {
 
   return (
     <div className="relative flex min-h-screen w-full flex-1 items-center justify-center bg-mesh p-4">
-      <ToastContainer />
-
       {/* Header */}
       <header className="absolute left-0 top-0 z-50 flex w-full items-center justify-center px-8 py-7">
         <h1 className="text-xl font-bold uppercase tracking-tight text-white">

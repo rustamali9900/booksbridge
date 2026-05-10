@@ -8,10 +8,12 @@ import { useUserBooks } from "@/hooks/useAllUserBooks";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useUploadAvatar } from "@/hooks/useUploadAvatar";
 import ConfirmModal from "@/components/layout/ConfirmModal";
+import ChangePasswordModal from "@/components/layout/ChangePasswordModal";
 
 export default function ProfilePage() {
   const fileInputRef = useRef(null);
   const [selectedBook, setSelectedBook] = useState(null);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const { currentUserId, currentUser, isLoading, error } = useCurrentUser();
 
@@ -109,11 +111,24 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <button onClick={() => logoutMutation.mutate()}>
-              <span className=" cursor-pointer material-symbols-outlined text-white text-2xl">
-                logout
-              </span>
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIsPasswordModalOpen(true)}
+                className="cursor-pointer rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 transition hover:border-[#fa4d2e]/40 hover:text-white"
+              >
+                Change Password
+              </button>
+
+              <button
+                type="button"
+                onClick={() => logoutMutation.mutate()}
+              >
+                <span className=" cursor-pointer material-symbols-outlined text-white text-2xl">
+                  logout
+                </span>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -251,6 +266,11 @@ export default function ProfilePage() {
         open={!!selectedBook}
         onCancel={() => setSelectedBook(null)}
         onConfirm={handleDelete}
+      />
+
+      <ChangePasswordModal
+        open={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
       />
     </main>
   );

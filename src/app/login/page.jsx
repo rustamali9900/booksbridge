@@ -3,8 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
@@ -27,9 +26,10 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { email, password } = formData;
+    const email = formData.email.trim();
+    const password = formData.password;
 
-    if (!email.trim() || !password) {
+    if (!email || !password) {
       setValidationError("Please enter both email and password.");
       return;
     }
@@ -51,13 +51,11 @@ export default function LoginPage() {
     if (response?.success) {
       toast.success("Welcome back to the Exchange King 🛐", {
         position: "top-right",
-        autoClose: 1500,
+        autoClose: 1200,
         theme: "dark",
       });
 
-      setTimeout(() => {
-        router.push("/marketplace");
-      }, 1500);
+      router.replace("/marketplace");
     }
   };
 
@@ -65,8 +63,6 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex flex-1 flex-col items-center justify-center min-h-screen p-4">
-      <ToastContainer />
-
       {/* Background Blurs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[10%] -left-[10%] h-[50%] w-[50%] rounded-full bg-[#FF4B2B]/10 blur-[120px]"></div>
