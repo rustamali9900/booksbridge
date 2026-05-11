@@ -1,10 +1,9 @@
 "use client";
 
 import { useRequestStatus, useCreateRequest } from "@/hooks/useRequestBook";
-
 import { useRouter } from "next/navigation";
 
-export default function RequestButton({ bookId, ownerId, currentUserId }) {
+export default function RequestButton({ bookId, ownerId, currentUserId, hasCard }) {
   const router = useRouter();
 
   const { data: alreadyRequested, isLoading } = useRequestStatus(
@@ -17,6 +16,11 @@ export default function RequestButton({ bookId, ownerId, currentUserId }) {
   const handleRequest = () => {
     if (!currentUserId) {
       return alert("You must be logged in.");
+    }
+
+    if (!hasCard) {
+      router.push("/profile");
+      return;
     }
 
     if (alreadyRequested) return;
@@ -46,6 +50,17 @@ export default function RequestButton({ bookId, ownerId, currentUserId }) {
         className="w-full bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest"
       >
         Request Sent
+      </button>
+    );
+  }
+
+  if (!hasCard) {
+    return (
+      <button
+        onClick={handleRequest}
+        className="w-full bg-zinc-800 text-zinc-300 border border-white/10 px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest hover:border-[#fa4d2e]/40 hover:text-white transition-colors"
+      >
+        Add Payment Method to Request
       </button>
     );
   }

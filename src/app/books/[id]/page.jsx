@@ -24,6 +24,16 @@ export default async function BookDetailsPage({ params }) {
 
   const isOwner = user?.id === book.owner_id;
 
+  let hasCard = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("fake_card_info")
+      .eq("id", user.id)
+      .single();
+    hasCard = !!profile?.fake_card_info;
+  }
+
   return (
     <div className="min-h-screen bg-black text-white p-10">
       <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-10">
@@ -63,6 +73,7 @@ export default async function BookDetailsPage({ params }) {
                 bookId={book.id}
                 ownerId={book.owner_id}
                 currentUserId={user?.id}
+                hasCard={hasCard}
               />
             ) : (
               <ExchangeButton

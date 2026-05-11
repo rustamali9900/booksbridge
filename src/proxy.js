@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
-export async function middleware(request) {
+
+export async function proxy(request) {
   let supabaseResponse = NextResponse.next({
     request: {
       headers: request.headers,
@@ -46,3 +47,7 @@ export async function middleware(request) {
 
   return supabaseResponse;
 }
+
+export const config = {
+  matcher: ["/((?!_next|api|.*\\.).*)"],
+};

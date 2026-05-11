@@ -8,10 +8,14 @@ import { useUserBooks } from "@/hooks/useAllUserBooks";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useUploadAvatar } from "@/hooks/useUploadAvatar";
 import ConfirmModal from "@/components/layout/ConfirmModal";
+import ChangePasswordModal from "@/components/layout/ChangePasswordModal";
+import CardDetailsModal from "@/components/layout/CardDetailsModal";
 
 export default function ProfilePage() {
   const fileInputRef = useRef(null);
   const [selectedBook, setSelectedBook] = useState(null);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isCardModalOpen, setIsCardModalOpen] = useState(false);
 
   const { currentUserId, currentUser, isLoading, error } = useCurrentUser();
 
@@ -36,6 +40,14 @@ export default function ProfilePage() {
     deleteBookMutation.mutate(selectedBook);
     setSelectedBook(null);
   };
+
+  const cardInfo = (() => {
+    try {
+      return currentUser?.fake_card_info ? JSON.parse(currentUser.fake_card_info) : null;
+    } catch {
+      return null;
+    }
+  })();
 
   if (isLoading) {
     return (
@@ -109,11 +121,24 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <button onClick={() => logoutMutation.mutate()}>
-              <span className=" cursor-pointer material-symbols-outlined text-white text-2xl">
-                logout
-              </span>
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setIsPasswordModalOpen(true)}
+                className="cursor-pointer rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 transition hover:border-[#fa4d2e]/40 hover:text-white"
+              >
+                Change Password
+              </button>
+
+              <button
+                type="button"
+                onClick={() => logoutMutation.mutate()}
+              >
+                <span className=" cursor-pointer material-symbols-outlined text-white text-2xl">
+                  logout
+                </span>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -165,6 +190,44 @@ export default function ProfilePage() {
               Listings
             </p>
           </div>
+        </section>
+
+        <section className="rounded-2xl border border-white/10 bg-[#0b0b0b] p-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-300">
+              Payment Method
+            </h2>
+            <button
+              type="button"
+              onClick={() => setIsCardModalOpen(true)}
+              className="cursor-pointer rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 transition hover:border-[#fa4d2e]/40 hover:text-white"
+            >
+              {cardInfo ? "Edit Card" : "Add Card"}
+            </button>
+          </div>
+
+          {cardInfo ? (
+            <div className="mt-4 flex items-center gap-4 rounded-xl border border-white/10 bg-[#111111] px-4 py-3">
+              <span className="material-symbols-outlined text-2xl text-slate-400">
+                credit_card
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-semibold tracking-widest text-white">
+                  **** **** **** {cardInfo.number.replace(/\s/g, "").slice(-4)}
+                </p>
+                <p className="mt-0.5 text-[11px] text-slate-500">
+                  Expires {cardInfo.expiry}
+                </p>
+              </div>
+              <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-emerald-400">
+                Active
+              </span>
+            </div>
+          ) : (
+            <div className="mt-4 rounded-xl border border-dashed border-white/10 px-4 py-6 text-center text-sm text-slate-500">
+              No card on file. Add a card to request books from the marketplace.
+            </div>
+          )}
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-[#0b0b0b] p-4">
@@ -251,6 +314,18 @@ export default function ProfilePage() {
         open={!!selectedBook}
         onCancel={() => setSelectedBook(null)}
         onConfirm={handleDelete}
+      />
+
+      <ChangePasswordModal
+        open={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+      />
+
+      <CardDetailsModal
+        open={isCardModalOpen}
+        onClose={() => setIsCardModalOpen(false)}
+        userId={currentUserId}
+        existingCard={cardInfo}
       />
     </main>
   );
