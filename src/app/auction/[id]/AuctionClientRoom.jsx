@@ -41,6 +41,7 @@ export default function AuctionClientRoom({ bookId, userId }) {
   const [customBid, setCustomBid] = useState("");
   const [isStarting, setIsStarting] = useState(false);
   const totalDurationRef = useRef(null);
+  const lastEndTimeRef = useRef(null);
 
   useEffect(() => {
     if (!book) return;
@@ -48,17 +49,14 @@ export default function AuctionClientRoom({ bookId, userId }) {
     if (
       book.auction_status === "in_auction" &&
       book.auction_end_time &&
-      totalDurationRef.current === null
+      book.auction_end_time !== lastEndTimeRef.current
     ) {
+      lastEndTimeRef.current = book.auction_end_time;
       const endTime = new Date(book.auction_end_time).getTime();
       const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-
-      totalDurationRef.current = remaining || 60;
+      totalDurationRef.current = remaining || 30;
     }
 
-    // Only auto-redirect once the DB has confirmed the auction is resolved.
-    // Checking timeLeft === 0 here is unreliable because timeLeft is not in
-    // the deps array and would be a stale closure value.
     if (book.auction_status !== "sold") return;
 
     const timer = setTimeout(() => {
@@ -104,7 +102,7 @@ export default function AuctionClientRoom({ bookId, userId }) {
   const handleStartAuction = async () => {
     setIsStarting(true);
     try {
-      const res = await fetch("/api/start", {
+      const res = await fetch("/api/auction/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bookId }),
