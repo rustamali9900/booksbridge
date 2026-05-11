@@ -117,10 +117,7 @@ export function useAuctionBooks() {
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "books" },
         (payload) => {
-          if (
-            payload.new.auction_status === "in_auction" ||
-            payload.new.auction_status === "sold"
-          ) {
+          if (payload.new.auction_status === "sold") {
             queryClient.invalidateQueries({ queryKey: ["auction_books"] });
           }
         },
