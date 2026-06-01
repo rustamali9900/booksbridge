@@ -107,9 +107,6 @@ export function useExchangeBooks() {
 export function useAuctionBooks() {
   const queryClient = useQueryClient();
 
-  // Realtime subscription: when any book's auction_status changes to "sold",
-  // invalidate the list so the auctionhouse page reflects the resolved state
-  // even if the user navigated here before the client-side RPC completed.
   useEffect(() => {
     const channel = supabase
       .channel("auction_books_status")
@@ -117,7 +114,8 @@ export function useAuctionBooks() {
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "books" },
         (payload) => {
-          if (payload.new.auction_status === "sold") {
+          const status = payload.new.auction_status;
+          if (status === "sold" || status === "in_auction") {
             queryClient.invalidateQueries({ queryKey: ["auction_books"] });
           }
         },

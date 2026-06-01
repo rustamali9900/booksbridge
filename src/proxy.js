@@ -35,7 +35,13 @@ export async function proxy(request) {
 
   const isProtectedRoute =
     request.nextUrl.pathname.startsWith("/marketplace") ||
-    request.nextUrl.pathname.startsWith("/books");
+    request.nextUrl.pathname.startsWith("/books") ||
+    request.nextUrl.pathname.startsWith("/dashboard") ||
+    request.nextUrl.pathname.startsWith("/profile") ||
+    request.nextUrl.pathname.startsWith("/exchange") ||
+    request.nextUrl.pathname.startsWith("/mystery") ||
+    request.nextUrl.pathname.startsWith("/auctionhouse") ||
+    request.nextUrl.pathname.startsWith("/auction");
 
   if (!user && isProtectedRoute) {
     return NextResponse.redirect(new URL("/login", request.url));

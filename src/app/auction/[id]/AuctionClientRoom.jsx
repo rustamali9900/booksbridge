@@ -104,7 +104,7 @@ export default function AuctionClientRoom({ bookId, userId }) {
   const handleStartAuction = async () => {
     setIsStarting(true);
     try {
-      const res = await fetch("/api/start", {
+      const res = await fetch("/api/auction/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bookId }),
